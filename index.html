@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CS11003 Revision — Jack's Test Prep</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --card2: #21253a;
+    --border: #2e3347;
+    --accent: #6366f1;
+    --accent2: #818cf8;
+    --green: #22c55e;
+    --red: #ef4444;
+    --yellow: #f59e0b;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --radius: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
+
+  /* NAV */
+  nav { background: var(--card); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; align-items: center; gap: 24px; position: sticky; top: 0; z-index: 100; }
+  nav .logo { font-weight: 700; font-size: 1.1rem; color: var(--accent2); padding: 16px 0; white-space: nowrap; }
+  nav .tabs { display: flex; gap: 4px; flex-wrap: wrap; }
+  nav button { background: none; border: none; color: var(--muted); padding: 18px 14px; cursor: pointer; font-size: 0.9rem; border-bottom: 3px solid transparent; transition: all 0.2s; white-space: nowrap; }
+  nav button.active, nav button:hover { color: var(--text); border-bottom-color: var(--accent); }
+  .countdown { margin-left: auto; text-align: right; padding: 10px 0; }
+  .countdown .days { font-size: 1.5rem; font-weight: 700; color: var(--yellow); }
+  .countdown .label { font-size: 0.7rem; color: var(--muted); }
+
+  /* VIEWS */
+  .view { display: none; padding: 24px; max-width: 1100px; margin: 0 auto; }
+  .view.active { display: block; }
+
+  /* HOME */
+  .hero { text-align: center; padding: 40px 20px; }
+  .hero h1 { font-size: 2rem; font-weight: 800; margin-bottom: 8px; }
+  .hero p { color: var(--muted); margin-bottom: 32px; }
+  .topic-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-bottom: 32px; }
+  .topic-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; }
+  .topic-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(99,102,241,0.15); }
+  .topic-card .icon { font-size: 2rem; margin-bottom: 10px; }
+  .topic-card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 6px; }
+  .topic-card p { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+  .topic-card .tag { position: absolute; top: 12px; right: 12px; background: var(--accent); color: white; font-size: 0.7rem; padding: 2px 8px; border-radius: 20px; }
+  .topic-card .tag.medium { background: var(--yellow); color: #1a1d27; }
+  .topic-card .tag.hard { background: var(--red); }
+
+  /* NOTES */
+  .topic-content { max-width: 800px; }
+  .topic-content h2 { font-size: 1.5rem; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+  .topic-content h2 span { font-size: 2rem; }
+  .section-block { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
+  .section-block h3 { font-size: 1rem; font-weight: 600; color: var(--accent2); margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+  .def-box { background: rgba(99,102,241,0.08); border-left: 3px solid var(--accent); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 8px 0; }
+  .def-box .label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; color: var(--accent2); margin-bottom: 4px; }
+  .def-box p { font-size: 0.9rem; line-height: 1.6; }
+  .thm-box { background: rgba(245,158,11,0.08); border-left: 3px solid var(--yellow); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 8px 0; }
+  .thm-box .label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; color: var(--yellow); margin-bottom: 4px; }
+  .thm-box p { font-size: 0.9rem; line-height: 1.6; }
+  .tip-box { background: rgba(34,197,94,0.08); border-left: 3px solid var(--green); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 8px 0; }
+  .tip-box .label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; color: var(--green); margin-bottom: 4px; }
+  .tip-box p { font-size: 0.9rem; line-height: 1.6; }
+  .ex-box { background: rgba(248,113,113,0.08); border-left: 3px solid var(--red); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 8px 0; }
+  .ex-box .label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; color: #f87171; margin-bottom: 4px; }
+  .ex-box p { font-size: 0.9rem; line-height: 1.6; }
+  ul.notes { padding-left: 20px; }
+  ul.notes li { font-size: 0.9rem; line-height: 1.8; color: var(--text); }
+  .formula { background: var(--bg); border: 1px solid var(--border); padding: 10px 16px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 1rem; text-align: center; margin: 10px 0; color: #c084fc; }
+  .back-btn { background: var(--card); border: 1px solid var(--border); color: var(--text); padding: 8px 16px; border-radius: 8px; cursor: pointer; margin-bottom: 20px; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; }
+  .back-btn:hover { border-color: var(--accent); }
+
+  /* QUIZ */
+  .quiz-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+  .quiz-header h2 { font-size: 1.3rem; font-weight: 700; }
+  .quiz-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  select { background: var(--card); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 8px; font-size: 0.85rem; cursor: pointer; }
+  .btn { padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: all 0.2s; }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent2); }
+  .btn-secondary { background: var(--card2); color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { border-color: var(--accent); }
+  .progress-bar-wrap { background: var(--card); border-radius: 100px; height: 8px; margin-bottom: 24px; overflow: hidden; }
+  .progress-bar { background: linear-gradient(90deg, var(--accent), var(--accent2)); height: 100%; border-radius: 100px; transition: width 0.4s; }
+  .question-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; margin-bottom: 20px; }
+  .question-card .qnum { font-size: 0.75rem; color: var(--muted); margin-bottom: 8px; }
+  .question-card .qtopic { display: inline-block; background: rgba(99,102,241,0.15); color: var(--accent2); font-size: 0.72rem; padding: 2px 10px; border-radius: 20px; margin-bottom: 14px; }
+  .question-card h3 { font-size: 1rem; line-height: 1.6; margin-bottom: 20px; }
+  .options { display: grid; gap: 10px; }
+  .option { background: var(--card2); border: 2px solid var(--border); border-radius: 10px; padding: 14px 18px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; display: flex; align-items: flex-start; gap: 12px; line-height: 1.5; text-align: left; width: 100%; color: var(--text); }
+  .option:hover:not(:disabled) { border-color: var(--accent); background: rgba(99,102,241,0.08); }
+  .option.correct { border-color: var(--green); background: rgba(34,197,94,0.1); }
+  .option.wrong { border-color: var(--red); background: rgba(239,68,68,0.1); }
+  .option .opt-letter { font-weight: 700; color: var(--accent2); min-width: 20px; }
+  .explanation { background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.3); border-radius: 10px; padding: 16px; margin-top: 16px; font-size: 0.88rem; line-height: 1.6; display: none; }
+  .explanation.show { display: block; }
+  .explanation.wrong-exp { background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.3); }
+  .quiz-nav { display: flex; gap: 12px; justify-content: space-between; align-items: center; }
+  .score-badge { background: var(--card); border: 1px solid var(--border); padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; }
+  .score-badge span { color: var(--accent2); font-weight: 700; }
+
+  /* RESULTS */
+  .result-screen { text-align: center; padding: 40px 20px; display: none; }
+  .result-screen.show { display: block; }
+  .result-circle { width: 120px; height: 120px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-direction: column; margin: 0 auto 24px; border: 4px solid var(--green); }
+  .result-circle.fail { border-color: var(--red); }
+  .result-circle .pct { font-size: 2rem; font-weight: 800; }
+  .result-circle .lbl { font-size: 0.75rem; color: var(--muted); }
+  .result-screen h2 { font-size: 1.5rem; margin-bottom: 8px; }
+  .result-screen p { color: var(--muted); margin-bottom: 24px; }
+  .results-breakdown { text-align: left; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin: 20px 0; }
+  .results-breakdown h4 { margin-bottom: 12px; }
+  .breakdown-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 0.88rem; }
+  .breakdown-item:last-child { border-bottom: none; }
+  .breakdown-item .correct-count { color: var(--green); font-weight: 600; }
+
+  /* CHEATSHEET */
+  .cheat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+  .cheat-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; }
+  .cheat-card h3 { font-size: 0.95rem; font-weight: 600; margin-bottom: 12px; color: var(--accent2); display: flex; align-items: center; gap: 8px; }
+  .cheat-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 0.82rem; }
+  .cheat-row:last-child { border-bottom: none; }
+  .cheat-row .term { color: var(--muted); min-width: 120px; }
+  .cheat-row .val { color: var(--text); text-align: right; }
+  .formula-box { background: var(--bg); border: 1px solid var(--border); padding: 8px 12px; border-radius: 6px; font-family: monospace; font-size: 0.9rem; color: #c084fc; margin: 4px 0; text-align: center; }
+
+  /* FLASHCARDS */
+  .flashcard-wrap { max-width: 600px; margin: 0 auto; }
+  .flashcard { background: var(--card); border: 1px solid var(--border); border-radius: 16px; min-height: 280px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 32px; cursor: pointer; position: relative; transition: transform 0.15s; user-select: none; }
+  .flashcard:hover { transform: scale(1.01); border-color: var(--accent); }
+  .flashcard .fc-side { font-size: 0.72rem; color: var(--muted); position: absolute; top: 16px; left: 20px; text-transform: uppercase; letter-spacing: 1px; }
+  .flashcard .fc-topic { font-size: 0.72rem; color: var(--accent2); position: absolute; top: 16px; right: 20px; background: rgba(99,102,241,0.15); padding: 2px 10px; border-radius: 20px; }
+  .flashcard .fc-body { font-size: 1.05rem; line-height: 1.7; text-align: center; }
+  .flashcard .fc-hint { font-size: 0.8rem; color: var(--muted); position: absolute; bottom: 16px; }
+  .fc-controls { display: flex; gap: 12px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
+  .fc-counter { text-align: center; color: var(--muted); font-size: 0.85rem; margin-top: 12px; }
+  .fc-rating { display: flex; gap: 8px; justify-content: center; margin-top: 16px; }
+  .fc-btn { padding: 10px 24px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: all 0.2s; }
+  .fc-btn.easy { background: var(--green); color: white; }
+  .fc-btn.hard { background: var(--red); color: white; }
+  .fc-btn.medium { background: var(--yellow); color: #1a1d27; }
+  .fc-btn:hover { opacity: 0.85; transform: translateY(-1px); }
+  .fc-topic-select { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 20px; }
+  .fc-topic-btn { background: var(--card); border: 1px solid var(--border); color: var(--muted); padding: 6px 14px; border-radius: 20px; cursor: pointer; font-size: 0.8rem; transition: all 0.2s; }
+  .fc-topic-btn.active { border-color: var(--accent); color: var(--accent2); background: rgba(99,102,241,0.1); }
+
+  @media (max-width: 600px) {
+    nav button { padding: 14px 10px; font-size: 0.8rem; }
+    .hero h1 { font-size: 1.5rem; }
+    .topic-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">📐 CS11003</div>
+  <div class="tabs">
+    <button class="active" onclick="showView('home')">🏠 Home</button>
+    <button onclick="showView('notes')">📖 Notes</button>
+    <button onclick="showView('quiz')">🧪 Quiz</button>
+    <button onclick="showView('flashcards')">🃏 Flashcards</button>
+    <button onclick="showView('cheatsheet')">📋 Cheatsheet</button>
+  </div>
+  <div class="countdown">
+    <div class="days" id="daysLeft">9</div>
+    <div class="label">days to test</div>
+  </div>
+</nav>
+
+<!-- HOME -->
+<div id="view-home" class="view active">
+  <div class="hero">
+    <h1>CS11003 Revision Hub 🎓</h1>
+    <p>Built from your lecture slides and tutorial sheets. Test is <strong id="testDateStr"></strong> — let's ace it.</p>
+  </div>
+
+  <div class="topic-grid">
+    <div class="topic-card" onclick="openTopic('graphs')">
+      <div class="tag">Foundation</div>
+      <div class="icon">🕸️</div>
+      <h3>Graph Theory Basics</h3>
+      <p>Nodes, edges, degree, adjacency lists & matrices, handshaking theorem, simple vs multigraphs.</p>
+    </div>
+    <div class="topic-card" onclick="openTopic('bipartite')">
+      <div class="tag medium">Medium</div>
+      <div class="icon">🔗</div>
+      <h3>Bipartite Graphs & Matching</h3>
+      <p>Bipartite graphs, matchings, complete matching, maximum matching, Hall's Marriage Theorem.</p>
+    </div>
+    <div class="topic-card" onclick="openTopic('operations')">
+      <div class="tag medium">Medium</div>
+      <div class="icon">🔀</div>
+      <h3>Graph Operations & Isomorphism</h3>
+      <p>Subgraphs, induced subgraphs, graph union, isomorphisms and how to prove/disprove them.</p>
+    </div>
+    <div class="topic-card" onclick="openTopic('connectivity')">
+      <div class="tag medium">Medium</div>
+      <div class="icon">🔌</div>
+      <h3>Connectivity in Graphs</h3>
+      <p>Paths, cycles, simple paths, connected graphs, connected components, strongly & weakly connected directed graphs.</p>
+    </div>
+    <div class="topic-card" onclick="openTopic('euler')">
+      <div class="tag hard">Hard</div>
+      <div class="icon">🌉</div>
+      <h3>Euler & Hamiltonian Paths</h3>
+      <p>Königsberg, Euler path/cycle conditions, Hamiltonian cycles, Dirac's theorem, Ore's theorem.</p>
+    </div>
+    <div class="topic-card" onclick="openTopic('probability')">
+      <div class="tag">Foundation</div>
+      <div class="icon">🎲</div>
+      <h3>Introduction to Probability</h3>
+      <p>Sample spaces, events, basic probability rules, conditional probability, independence, Bonferroni's inequality.</p>
+    </div>
+    <div class="topic-card" onclick="openTopic('bayes')">
+      <div class="tag hard">Hard</div>
+      <div class="icon">🔮</div>
+      <h3>Bayes' Theorem</h3>
+      <p>Prior/posterior probability, full form of Bayes' theorem, disease tests, spam filters, Bayesian inference.</p>
+    </div>
+    <div class="topic-card" onclick="openTopic('distributions')">
+      <div class="tag medium">Medium</div>
+      <div class="icon">📊</div>
+      <h3>Probability Distributions</h3>
+      <p>Random variables, Bernoulli trials, binomial distribution, expected value.</p>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+    <button class="btn btn-primary" onclick="showView('quiz');startQuiz()">Start Quiz (All Topics)</button>
+    <button class="btn btn-secondary" onclick="showView('flashcards')">Practice Flashcards</button>
+    <button class="btn btn-secondary" onclick="showView('cheatsheet')">Quick Cheatsheet</button>
+  </div>
+</div>
+
+<!-- NOTES -->
+<div id="view-notes" class="view">
+  <div id="notes-list">
+    <h2 style="margin-bottom:20px;">📖 Revision Notes</h2>
+    <div class="topic-grid">
+      <div class="topic-card" onclick="openTopic('graphs')"><div class="icon">🕸️</div><h3>Graph Theory Basics</h3></div>
+      <div class="topic-card" onclick="openTopic('bipartite')"><div class="icon">🔗</div><h3>Bipartite Graphs & Matching</h3></div>
+      <div class="topic-card" onclick="openTopic('operations')"><div class="icon">🔀</div><h3>Graph Operations & Isomorphism</h3></div>
+      <div class="topic-card" onclick="openTopic('connectivity')"><div class="icon">🔌</div><h3>Connectivity in Graphs</h3></div>
+      <div class="topic-card" onclick="openTopic('euler')"><div class="icon">🌉</div><h3>Euler & Hamiltonian Paths</h3></div>
+      <div class="topic-card" onclick="openTopic('probability')"><div class="icon">🎲</div><h3>Introduction to Probability</h3></div>
+      <div class="topic-card" onclick="openTopic('bayes')"><div class="icon">🔮</div><h3>Bayes' Theorem</h3></div>
+      <div class="topic-card" onclick="openTopic('distributions')"><div class="icon">📊</div><h3>Probability Distributions</h3></div>
+    </div>
+  </div>
+  <div id="topic-detail" style="display:none;"></div>
+</div>
+
+<!-- QUIZ -->
+<div id="view-quiz" class="view">
+  <div class="quiz-header">
+    <h2>🧪 Practice Quiz</h2>
+    <div class="quiz-controls">
+      <select id="quiz-topic-filter">
+        <option value="all">All Topics</option>
+        <option value="graphs">Graph Theory Basics</option>
+        <option value="bipartite">Bipartite & Matching</option>
+        <option value="operations">Graph Operations</option>
+        <option value="connectivity">Connectivity</option>
+        <option value="euler">Euler & Hamiltonian</option>
+        <option value="probability">Probability</option>
+        <option value="bayes">Bayes' Theorem</option>
+        <option value="distributions">Distributions</option>
+      </select>
+      <button class="btn btn-primary" onclick="startQuiz()">New Quiz</button>
+    </div>
+  </div>
+
+  <div id="quiz-area">
+    <div class="progress-bar-wrap"><div class="progress-bar" id="quiz-progress" style="width:0%"></div></div>
+    <div id="q-container"></div>
+    <div id="result-screen" class="result-screen">
+      <div class="result-circle" id="result-circle">
+        <div class="pct" id="result-pct">0%</div>
+        <div class="lbl">score</div>
+      </div>
+      <h2 id="result-msg"></h2>
+      <p id="result-sub"></p>
+      <div class="results-breakdown" id="results-breakdown"></div>
+      <button class="btn btn-primary" onclick="startQuiz()" style="margin-right:8px;">Try Again</button>
+      <button class="btn btn-secondary" onclick="showView('home')">Home</button>
+    </div>
+  </div>
+</div>
+
+<!-- FLASHCARDS -->
+<div id="view-flashcards" class="view">
+  <h2 style="margin-bottom:16px;">🃏 Flashcards</h2>
+  <div class="fc-topic-select" id="fc-topic-btns"></div>
+  <div class="flashcard-wrap">
+    <div class="flashcard" id="flashcard" onclick="flipCard()">
+      <div class="fc-side" id="fc-side">Question</div>
+      <div class="fc-topic" id="fc-topic-badge"></div>
+      <div class="fc-body" id="fc-body">Click "New Set" to begin</div>
+      <div class="fc-hint" id="fc-hint">Click to reveal answer</div>
+    </div>
+    <div class="fc-counter" id="fc-counter"></div>
+    <div id="fc-rating" style="display:none;" class="fc-rating">
+      <button class="fc-btn easy" onclick="rateCard('easy')">✅ Got it</button>
+      <button class="fc-btn medium" onclick="rateCard('medium')">😐 Unsure</button>
+      <button class="fc-btn hard" onclick="rateCard('hard')">❌ Again</button>
+    </div>
+    <div class="fc-controls">
+      <button class="btn btn-secondary" onclick="fcPrev()">← Prev</button>
+      <button class="btn btn-primary" onclick="fcNext()">Next →</button>
+      <button class="btn btn-secondary" onclick="shuffleCards()">🔀 Shuffle</button>
+    </div>
+  </div>
+</div>
+
+<!-- CHEATSHEET -->
+<div id="view-cheatsheet" class="view">
+  <h2 style="margin-bottom:20px;">📋 Quick Cheatsheet</h2>
+  <div class="cheat-grid">
+
+    <div class="cheat-card">
+      <h3>🕸️ Graph Basics</h3>
+      <div class="cheat-row"><span class="term">Simple graph</span><span class="val">No loops, ≤1 edge per pair</span></div>
+      <div class="cheat-row"><span class="term">Multigraph</span><span class="val">Multiple edges allowed</span></div>
+      <div class="cheat-row"><span class="term">deg(v)</span><span class="val">Number of edges at v</span></div>
+      <div class="cheat-row"><span class="term">Pendant node</span><span class="val">deg = 1</span></div>
+      <div class="cheat-row"><span class="term">Isolated node</span><span class="val">deg = 0</span></div>
+      <div class="cheat-row"><span class="term">Neighbourhood N(v)</span><span class="val">All adjacent nodes</span></div>
+      <div class="formula-box">Handshaking: Σ deg(v) = 2m</div>
+    </div>
+
+    <div class="cheat-card">
+      <h3>📐 Directed Graphs</h3>
+      <div class="cheat-row"><span class="term">deg⁺(v) out-degree</span><span class="val">Edges leaving v</span></div>
+      <div class="cheat-row"><span class="term">deg⁻(v) in-degree</span><span class="val">Edges entering v</span></div>
+      <div class="cheat-row"><span class="term">Loop</span><span class="val">Counts +1 to both deg⁺ and deg⁻</span></div>
+      <div class="formula-box">Σ deg⁺(v) = Σ deg⁻(v) = m</div>
+    </div>
+
+    <div class="cheat-card">
+      <h3>🔗 Bipartite Graphs</h3>
+      <div class="cheat-row"><span class="term">Bipartite G=(V₁∪V₂,E)</span><span class="val">Edges only cross partitions</span></div>
+      <div class="cheat-row"><span class="term">Matching M</span><span class="val">No two edges share a node</span></div>
+      <div class="cheat-row"><span class="term">Complete matching</span><span class="val">Every node in V₁ matched</span></div>
+      <div class="cheat-row"><span class="term">Maximum matching</span><span class="val">Largest possible matching</span></div>
+      <div class="formula-box">Hall's Theorem: ∀A⊆V₁, |N(A)| ≥ |A|</div>
+      <div class="cheat-row"><span class="term">Hall's condition</span><span class="val">Complete matching exists iff condition holds</span></div>
+    </div>
+
+    <div class="cheat-card">
+      <h3>🔀 Isomorphism</h3>
+      <div class="cheat-row"><span class="term">Isomorphism</span><span class="val">Bijection f: V₁→V₂ preserving edges</span></div>
+      <div class="cheat-row"><span class="term">Quick disproofs</span><span class="val">Different # of nodes/edges</span></div>
+      <div class="cheat-row"><span class="term"></span><span class="val">Different degree sequences</span></div>
+      <div class="cheat-row"><span class="term">Induced subgraph</span><span class="val">Keep selected nodes + all edges between them</span></div>
+    </div>
+
+    <div class="cheat-card">
+      <h3>🔌 Connectivity</h3>
+      <div class="cheat-row"><span class="term">Path (length n)</span><span class="val">Sequence of n edges</span></div>
+      <div class="cheat-row"><span class="term">Simple path</span><span class="val">No edge repeated</span></div>
+      <div class="cheat-row"><span class="term">Cycle</span><span class="val">Path starting and ending at same node</span></div>
+      <div class="cheat-row"><span class="term">Connected (undirected)</span><span class="val">Path between every pair</span></div>
+      <div class="cheat-row"><span class="term">Strongly connected</span><span class="val">Directed path a→b AND b→a for all pairs</span></div>
+      <div class="cheat-row"><span class="term">Weakly connected</span><span class="val">Underlying undirected graph is connected</span></div>
+      <div class="cheat-row"><span class="term">Connected component</span><span class="val">Maximal connected subgraph</span></div>
+    </div>
+
+    <div class="cheat-card">
+      <h3>🌉 Euler Paths</h3>
+      <div class="cheat-row"><span class="term">Euler cycle</span><span class="val">Simple cycle using EVERY edge</span></div>
+      <div class="cheat-row"><span class="term">Euler path</span><span class="val">Simple path using EVERY edge</span></div>
+      <div class="formula-box">Euler cycle exists ↔ all vertices even degree</div>
+      <div class="formula-box">Euler path exists ↔ exactly 2 odd-degree vertices</div>
+      <div class="cheat-row"><span class="term">Directed Euler cycle</span><span class="val">deg⁺(v) = deg⁻(v) for ALL v</span></div>
+    </div>
+
+    <div class="cheat-card">
+      <h3>🏇 Hamiltonian Paths</h3>
+      <div class="cheat-row"><span class="term">Hamiltonian cycle</span><span class="val">Visits every VERTEX exactly once</span></div>
+      <div class="cheat-row"><span class="term">Euler vs Hamilton</span><span class="val">Euler = edges, Hamilton = vertices</span></div>
+      <div class="formula-box">Dirac: n≥3, all deg≥n/2 → Ham. cycle</div>
+      <div class="formula-box">Ore: n≥3, deg(u)+deg(v)≥n for non-adjacent u,v → Ham. cycle</div>
+      <div class="cheat-row"><span class="term">Note</span><span class="val">No simple condition like Euler</span></div>
+    </div>
+
+    <div class="cheat-card">
+      <h3>🎲 Probability</h3>
+      <div class="formula-box">P(A) = |A| / |S|</div>
+      <div class="formula-box">P(Ā) = 1 - P(A)</div>
+      <div class="formula-box">P(A∪B) = P(A)+P(B)-P(A∩B)</div>
+      <div class="formula-box">P(A|B) = P(A∩B) / P(B)</div>
+      <div class="cheat-row"><span class="term">Independent events</span><span class="val">P(A∩B) = P(A)·P(B)</span></div>
+      <div class="formula-box">Bonferroni: P(E∩F) ≥ P(E)+P(F)-1</div>
+    </div>
+
+    <div class="cheat-card">
+      <h3>🔮 Bayes' Theorem</h3>
+      <div class="formula-box">P(A|B) = P(A)·P(B|A) / P(B)</div>
+      <div class="formula-box">Full: P(A|B) = P(A)·P(B|A) / [P(A)·P(B|A) + P(Ā)·P(B|Ā)]</div>
+      <div class="cheat-row"><span class="term">P(A)</span><span class="val">Prior probability</span></div>
+      <div class="cheat-row"><span class="term">P(A|B)</span><span class="val">Posterior probability</span></div>
+      <div class="cheat-row"><span class="term">P(B)</span><span class="val">Marginal probability</span></div>
+      <div class="cheat-row"><span class="term">P(B|A)</span><span class="val">Likelihood</span></div>
+    </div>
+
+    <div class="cheat-card">
+      <h3>📊 Distributions</h3>
+      <div class="cheat-row"><span class="term">Bernoulli trial</span><span class="val">Single experiment, p=success</span></div>
+      <div class="cheat-row"><span class="term">Binomial B(n,p)</span><span class="val">n independent Bernoulli trials</span></div>
+      <div class="formula-box">P(X=k) = C(n,k)·pᵏ·(1-p)ⁿ⁻ᵏ</div>
+      <div class="cheat-row"><span class="term">Expected value E[X]</span><span class="val">np</span></div>
+      <div class="cheat-row"><span class="term">C(n,k)</span><span class="val">n! / (k!(n-k)!)</span></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ===================== DATA =====================
+
+const TOPICS = {
+  graphs: {
+    name: 'Graph Theory Basics',
+    icon: '🕸️',
+    sections: [
+      {
+        title: 'What is a Graph?',
+        content: `
+          <div class="def-box"><div class="label">Definition</div><p>A graph G = (V, E) consists of a set of <strong>nodes (vertices) V</strong> and a set of <strong>edges E</strong> connecting pairs of nodes.</p></div>
+          <ul class="notes">
+            <li><strong>Simple graph:</strong> no loops, at most one edge between any two nodes</li>
+            <li><strong>Multigraph:</strong> multiple edges between the same pair of nodes are allowed</li>
+            <li><strong>Directed graph (digraph):</strong> edges have direction (ordered pairs)</li>
+            <li><strong>Undirected graph:</strong> edges have no direction</li>
+          </ul>
+        `
+      },
+      {
+        title: 'Degree of a Node',
+        content: `
+          <div class="def-box"><div class="label">Definition</div><p>The <strong>degree deg(v)</strong> of a node v in an undirected graph is the number of edges incident to v. Loops count twice.</p></div>
+          <div class="def-box"><div class="label">Directed Graph</div><p><strong>deg⁺(v)</strong> = out-degree (edges leaving v). <strong>deg⁻(v)</strong> = in-degree (edges entering v). A loop contributes 1 to each.</p></div>
+          <ul class="notes">
+            <li><strong>Isolated node:</strong> deg(v) = 0</li>
+            <li><strong>Pendant node:</strong> deg(v) = 1</li>
+            <li><strong>Neighbourhood N(v):</strong> set of all nodes adjacent to v</li>
+          </ul>
+          <div class="thm-box"><div class="label">Handshaking Theorem</div><p>For any graph with m edges: <strong>Σ deg(v) = 2m</strong>. Therefore the sum of all degrees is always even.</p></div>
+          <div class="tip-box"><div class="label">Key Consequence</div><p>A graph cannot have an odd number of vertices each with an odd degree. (e.g. 15 vertices each degree 5 is impossible: 15×5 = 75 which is odd, violating 2m rule)</p></div>
+        `
+      },
+      {
+        title: 'Adjacency List & Matrix',
+        content: `
+          <ul class="notes">
+            <li><strong>Adjacency list:</strong> for each node, list its neighbours — good for sparse graphs</li>
+            <li><strong>Adjacency matrix:</strong> n×n matrix where entry (i,j) = 1 if edge exists between i and j</li>
+            <li>Undirected graph → symmetric adjacency matrix</li>
+            <li>Directed graph → may be asymmetric (entry (i,j)=1 means edge FROM i TO j)</li>
+          </ul>
+          <div class="tip-box"><div class="label">Exam Tip</div><p>If the adjacency matrix is not symmetric, the graph must be directed. Always check this first.</p></div>
+        `
+      }
+    ]
+  },
+  bipartite: {
+    name: 'Bipartite Graphs & Matching',
+    icon: '🔗',
+    sections: [
+      {
+        title: 'Bipartite Graphs',
+        content: `
+          <div class="def-box"><div class="label">Definition</div><p>A graph G = (V, E) is <strong>bipartite</strong> if its vertex set V can be partitioned into two disjoint sets V₁ and V₂ such that every edge connects a vertex in V₁ to a vertex in V₂.</p></div>
+          <ul class="notes">
+            <li>No edges within V₁ or within V₂</li>
+            <li>Good model for: job assignments, marriage problems, recommendation systems</li>
+            <li>Complete bipartite graph Kₘ,ₙ: every vertex in V₁ connected to every vertex in V₂</li>
+          </ul>
+          <div class="ex-box"><div class="label">Example</div><p>Employees (Fred, Bob, Alan, Craig) assigned to tasks (requirements, arch, implementation, testing). Bipartite graph models who can do what.</p></div>
+        `
+      },
+      {
+        title: 'Matchings',
+        content: `
+          <div class="def-box"><div class="label">Definition</div><p>A <strong>matching M</strong> in a graph G is a set of edges with no shared endpoints (vertices).</p></div>
+          <ul class="notes">
+            <li><strong>Complete matching from V₁ to V₂:</strong> every vertex in V₁ is matched</li>
+            <li><strong>Maximum matching:</strong> largest possible matching (most edges)</li>
+            <li>A complete matching from V₁ is also maximum if |V₁| ≤ |V₂|</li>
+          </ul>
+        `
+      },
+      {
+        title: "Hall's Marriage Theorem",
+        content: `
+          <div class="thm-box"><div class="label">Theorem (Hall, 1935)</div><p>A bipartite graph G = (V₁ ∪ V₂, E) has a complete matching from V₁ to V₂ <strong>if and only if</strong> for every subset A ⊆ V₁, <strong>|N(A)| ≥ |A|</strong>.</p></div>
+          <div class="tip-box"><div class="label">How to Apply</div><p>Check EVERY subset A of V₁. If you find any subset A where |N(A)| &lt; |A|, no complete matching exists. If all subsets satisfy the condition, a complete matching exists.</p></div>
+          <div class="ex-box"><div class="label">Counterexample Structure</div><p>If {John, Graham} both only connect to {architecture}, then |N({John,Graham})| = 1 &lt; |{John,Graham}| = 2 → no complete matching.</p></div>
+        `
+      }
+    ]
+  },
+  operations: {
+    name: 'Graph Operations & Isomorphism',
+    icon: '🔀',
+    sections: [
+      {
+        title: 'Subgraphs',
+        content: `
+          <div class="def-box"><div class="label">Subgraph</div><p>Graph H is a <strong>subgraph</strong> of G if V(H) ⊆ V(G) and E(H) ⊆ E(G).</p></div>
+          <div class="def-box"><div class="label">Induced Subgraph</div><p>The subgraph <strong>induced</strong> by a set of nodes S contains all nodes in S and all edges from G whose both endpoints are in S.</p></div>
+          <div class="def-box"><div class="label">Graph Union</div><p>The union of two graphs G₁ and G₂ is the graph with node set V₁ ∪ V₂ and edge set E₁ ∪ E₂.</p></div>
+          <div class="def-box"><div class="label">Edge Contraction</div><p>Contracting edge {u,v}: merge u and v into a new node, remove the edge, redirect all other edges.</p></div>
+        `
+      },
+      {
+        title: 'Graph Isomorphism',
+        content: `
+          <div class="def-box"><div class="label">Definition</div><p>Graphs G₁=(V₁,E₁) and G₂=(V₂,E₂) are <strong>isomorphic</strong> if there exists a bijection f: V₁→V₂ such that {u,v}∈E₁ ↔ {f(u),f(v)}∈E₂.</p></div>
+          <div class="tip-box"><div class="label">Quick checks before finding isomorphism</div>
+            <p>Two isomorphic graphs must have: same number of vertices • same number of edges • same degree sequence (sorted list of degrees) • same number of cycles of each length.</p>
+          </div>
+          <div class="tip-box"><div class="label">To prove isomorphic</div><p>Find the bijection f and verify it preserves all edges. Think of it as "renaming" nodes of one graph to match the other.</p></div>
+          <div class="tip-box"><div class="label">To prove NOT isomorphic</div><p>Find an invariant that differs: e.g., one graph has a node of degree 4, the other doesn't. Or different numbers of nodes of degree 3.</p></div>
+        `
+      },
+      {
+        title: 'Making a Graph Simple',
+        content: `
+          <div class="def-box"><div class="label">Simple Graph</div><p>No loops and at most one edge between any pair of nodes.</p></div>
+          <ul class="notes">
+            <li>To convert a multigraph to simple: remove all loops, remove duplicate edges (keep one)</li>
+            <li>Find the <strong>minimal</strong> number of edges to remove</li>
+            <li>Count loops (each = 1 edge to remove) + count each set of multiple edges minus 1</li>
+          </ul>
+        `
+      }
+    ]
+  },
+  connectivity: {
+    name: 'Connectivity in Graphs',
+    icon: '🔌',
+    sections: [
+      {
+        title: 'Paths and Cycles',
+        content: `
+          <div class="def-box"><div class="label">Path (length n)</div><p>A sequence of n edges e₁, e₂, ..., eₙ with a corresponding sequence of nodes x₀, x₁, ..., xₙ where edge eᵢ connects xᵢ₋₁ to xᵢ.</p></div>
+          <ul class="notes">
+            <li><strong>Simple path:</strong> does not repeat the same edge</li>
+            <li><strong>Cycle / Circuit:</strong> path that starts and ends at the same node</li>
+            <li>In a simple graph, a path is usually denoted by just the node sequence: v₀, v₁, ..., vₙ</li>
+          </ul>
+          <div class="thm-box"><div class="label">Theorem</div><p>In any connected undirected graph, there exists a <strong>simple path</strong> between every pair of vertices.</p></div>
+        `
+      },
+      {
+        title: 'Connected Graphs',
+        content: `
+          <div class="def-box"><div class="label">Connected (Undirected)</div><p>An undirected graph is <strong>connected</strong> if there is a path between every pair of distinct vertices. Otherwise it is <strong>disconnected</strong>.</p></div>
+          <div class="def-box"><div class="label">Connected Component</div><p>A <strong>connected component</strong> is a maximal connected subgraph — it cannot be part of a larger connected subgraph.</p></div>
+          <ul class="notes">
+            <li>A disconnected graph has 2 or more connected components that are disjoint</li>
+            <li>Their union gives back the whole graph</li>
+          </ul>
+        `
+      },
+      {
+        title: 'Directed Graph Connectivity',
+        content: `
+          <div class="def-box"><div class="label">Strongly Connected</div><p>A directed graph is <strong>strongly connected</strong> if for every pair of nodes a, b: there is a path from a to b AND from b to a.</p></div>
+          <div class="def-box"><div class="label">Weakly Connected</div><p>A directed graph is <strong>weakly connected</strong> if the underlying undirected graph (ignoring edge directions) is connected.</p></div>
+          <div class="def-box"><div class="label">Strongly Connected Components (SCCs)</div><p>Maximal strongly connected subgraphs of a directed graph. SCCs of any two vertices are either identical or disjoint.</p></div>
+          <div class="tip-box"><div class="label">Mutual Reachability</div><p>Vertices u and v are <strong>mutually reachable</strong> if there are directed paths both from u to v and from v to u. Mutual reachability is transitive — if u↔v and v↔w, then u↔w.</p></div>
+        `
+      }
+    ]
+  },
+  euler: {
+    name: 'Euler & Hamiltonian Paths',
+    icon: '🌉',
+    sections: [
+      {
+        title: 'Euler Paths and Cycles',
+        content: `
+          <div class="def-box"><div class="label">Euler Cycle</div><p>A simple cycle that traverses <strong>every edge</strong> of graph G exactly once.</p></div>
+          <div class="def-box"><div class="label">Euler Path</div><p>A simple path that traverses <strong>every edge</strong> of graph G exactly once.</p></div>
+          <div class="thm-box"><div class="label">Theorem (Undirected)</div><p>A connected graph has an <strong>Euler cycle</strong> ↔ every vertex has <strong>even degree</strong>.<br>A connected graph has an <strong>Euler path</strong> (not cycle) ↔ it has <strong>exactly 2 vertices of odd degree</strong> (the path starts and ends at these).</p></div>
+          <div class="ex-box"><div class="label">Königsberg Bridge Problem</div><p>The 7 bridges of Königsberg can't be walked crossing each once: the graph has 4 vertices all with odd degree → no Euler path exists.</p></div>
+          <div class="thm-box"><div class="label">Theorem (Directed)</div><p>A connected directed graph has an <strong>Euler cycle</strong> ↔ for every vertex: deg⁺(v) = deg⁻(v).<br>An <strong>Euler path</strong> exists ↔ one vertex has deg⁺ - deg⁻ = 1 (start), one has deg⁻ - deg⁺ = 1 (end), all others equal.</p></div>
+          <div class="tip-box"><div class="label">Quick method</div><p>Count odd-degree vertices. If 0 → Euler cycle. If 2 → Euler path only. If more → neither.</p></div>
+        `
+      },
+      {
+        title: 'Hamiltonian Paths and Cycles',
+        content: `
+          <div class="def-box"><div class="label">Hamiltonian Cycle</div><p>A cycle that visits <strong>every vertex</strong> exactly once.</p></div>
+          <div class="def-box"><div class="label">Hamiltonian Path</div><p>A path that visits <strong>every vertex</strong> exactly once.</p></div>
+          <div class="tip-box"><div class="label">Key Difference from Euler</div><p>Euler = every EDGE once. Hamiltonian = every VERTEX once. No simple necessary and sufficient condition exists for Hamiltonian cycles (unlike Euler).</p></div>
+          <div class="thm-box"><div class="label">Dirac's Theorem (Sufficient)</div><p>If G has n ≥ 3 vertices and every vertex has degree ≥ n/2, then G has a Hamiltonian cycle.</p></div>
+          <div class="thm-box"><div class="label">Ore's Theorem (Sufficient)</div><p>If G has n ≥ 3 vertices and for every pair of non-adjacent vertices u, v: deg(u) + deg(v) ≥ n, then G has a Hamiltonian cycle.</p></div>
+          <div class="tip-box"><div class="label">Exam Note</div><p>These theorems are <strong>sufficient but not necessary</strong> — a graph can have a Hamiltonian cycle even if the theorems don't apply. Dirac's is a special case of Ore's.</p></div>
+        `
+      }
+    ]
+  },
+  probability: {
+    name: 'Introduction to Probability',
+    icon: '🎲',
+    sections: [
+      {
+        title: 'Basic Probability',
+        content: `
+          <div class="def-box"><div class="label">Sample Space & Events</div><p>The <strong>sample space S</strong> is the set of all possible outcomes. An <strong>event</strong> is a subset of S.</p></div>
+          <div class="formula">P(A) = |A| / |S|  (for uniform probability)</div>
+          <div class="formula">P(Ā) = 1 − P(A)  (complement rule)</div>
+          <div class="formula">P(A∪B) = P(A) + P(B) − P(A∩B)  (inclusion-exclusion)</div>
+          <ul class="notes">
+            <li><strong>Disjoint events:</strong> A ∩ B = ∅, so P(A∪B) = P(A) + P(B)</li>
+            <li>Always: 0 ≤ P(A) ≤ 1</li>
+            <li>P(S) = 1</li>
+          </ul>
+          <div class="thm-box"><div class="label">Bonferroni's Inequality</div><p>P(E ∩ F) ≥ P(E) + P(F) − 1</p></div>
+        `
+      },
+      {
+        title: 'Conditional Probability & Independence',
+        content: `
+          <div class="def-box"><div class="label">Conditional Probability</div><p>The probability of A given B has occurred: <strong>P(A|B) = P(A∩B) / P(B)</strong>, where P(B) > 0.</p></div>
+          <div class="def-box"><div class="label">Independent Events</div><p>Events E and F are <strong>independent</strong> if P(E∩F) = P(E)·P(F). Equivalently: P(E|F) = P(E).</p></div>
+          <ul class="notes">
+            <li>If E and F are independent, so are Ē and F̄, and E and F̄</li>
+            <li>Do NOT confuse disjoint with independent — disjoint events (P(A∩B)=0) are almost never independent</li>
+          </ul>
+          <div class="tip-box"><div class="label">Counting Approaches</div>
+            <p>Combinations: C(n,k) = n!/(k!(n-k)!) — order doesn't matter.<br>Permutations: P(n,k) = n!/(n-k)! — order matters.</p>
+          </div>
+        `
+      }
+    ]
+  },
+  bayes: {
+    name: "Bayes' Theorem",
+    icon: '🔮',
+    sections: [
+      {
+        title: "Bayes' Theorem — The Formula",
+        content: `
+          <div class="thm-box"><div class="label">Bayes' Theorem (Simple Form)</div><p>The probability of event A given that event B has occurred:</p></div>
+          <div class="formula">P(A|B) = P(A) · P(B|A) / P(B)</div>
+          <ul class="notes">
+            <li><strong>P(A)</strong> = prior probability (our belief about A before seeing B)</li>
+            <li><strong>P(A|B)</strong> = posterior probability (updated belief after seeing B)</li>
+            <li><strong>P(B)</strong> = marginal probability of B</li>
+            <li><strong>P(B|A)</strong> = likelihood (how likely is B if A is true)</li>
+          </ul>
+          <div class="thm-box"><div class="label">Bayes' Theorem (Full Form — when B depends on A)</div><p>Use when P(B) is not given directly:</p></div>
+          <div class="formula">P(A|B) = P(A)·P(B|A) / [P(A)·P(B|A) + P(Ā)·P(B|Ā)]</div>
+        `
+      },
+      {
+        title: 'Classic Examples',
+        content: `
+          <div class="ex-box"><div class="label">Disease Test Example</div>
+            <p>Disease prevalence: P(A) = 0.0001. Test 90% reliable: P(B|A) = 0.9, P(B|Ā) = 0.1.<br>
+            Test comes back positive. What is P(A|B)?<br><br>
+            P(A|B) = (0.0001 × 0.9) / [(0.0001 × 0.9) + (0.9999 × 0.1)] ≈ 0.0009<br><br>
+            <strong>Only ~0.09% chance you actually have it!</strong> The prior probability is so small that a positive test is still mostly false positives.</p>
+          </div>
+          <div class="ex-box"><div class="label">Spam Filter Example</div>
+            <p>Word "Rolex" in 250/2000 spam messages and 5/1000 non-spam.<br>
+            P(spam|Rolex) = (0.5 × 250/2000) / [(0.5 × 250/2000) + (0.5 × 5/1000)]<br>
+            = 0.0625 / (0.0625 + 0.0025) ≈ 0.962<br>
+            <strong>96.2% chance it's spam!</strong></p>
+          </div>
+          <div class="tip-box"><div class="label">Always use the full form when...</div><p>P(B) is not directly given — when the probability of B depends on whether A happened or not. You need both P(B|A) and P(B|Ā).</p></div>
+        `
+      }
+    ]
+  },
+  distributions: {
+    name: 'Probability Distributions',
+    icon: '📊',
+    sections: [
+      {
+        title: 'Random Variables & Bernoulli Trials',
+        content: `
+          <div class="def-box"><div class="label">Random Variable</div><p>A function X that assigns a real number to each outcome in the sample space.</p></div>
+          <div class="def-box"><div class="label">Bernoulli Trial</div><p>An experiment with exactly two outcomes: <strong>success</strong> (prob p) and <strong>failure</strong> (prob 1−p = q).</p></div>
+          <ul class="notes">
+            <li>Trials must be <strong>independent</strong></li>
+            <li>Probability of success p is the same in each trial</li>
+            <li>Examples: coin flip, rolling a specific number, drug test positive/negative</li>
+          </ul>
+        `
+      },
+      {
+        title: 'Binomial Distribution',
+        content: `
+          <div class="def-box"><div class="label">Binomial Distribution B(n,p)</div><p>n independent Bernoulli trials, each with success probability p. X = number of successes.</p></div>
+          <div class="formula">P(X = k) = C(n,k) · pᵏ · (1−p)ⁿ⁻ᵏ</div>
+          <ul class="notes">
+            <li>C(n,k) = n! / (k!(n-k)!) counts the ways to choose which k trials succeed</li>
+            <li><strong>Expected value E[X] = np</strong></li>
+            <li>Probability of no failures: pⁿ</li>
+            <li>Probability of at least one failure: 1 − pⁿ</li>
+            <li>Probability of at most one failure: pⁿ + n·p^(n-1)·(1-p)</li>
+          </ul>
+          <div class="ex-box"><div class="label">Example from Tutorial</div><p>Rolling a 6-sided die 4 times. Probability of exactly two 6s?<br>P(X=2) = C(4,2) × (1/6)² × (5/6)² = 6 × (1/36) × (25/36) = 150/1296 ≈ 0.116</p></div>
+        `
+      }
+    ]
+  }
+};
+
+// ===================== QUIZ DATA =====================
+
+const QUESTIONS = [
+  // GRAPH BASICS
+  {topic:'graphs', q:'What does the Handshaking Theorem state?', opts:['The sum of all degrees equals the number of edges','The sum of all degrees equals 2 times the number of edges','Every graph has an even number of vertices','The number of edges equals the number of vertices'], ans:1, exp:'The Handshaking Theorem: Σ deg(v) = 2m, where m is the number of edges. This is because each edge contributes exactly 2 to the total degree count.'},
+  {topic:'graphs', q:'A pendant node is a node with degree:', opts:['0','1','2','More than 2'], ans:1, exp:'A pendant node has degree 1 — exactly one edge connects it to the rest of the graph. Degree 0 = isolated node.'},
+  {topic:'graphs', q:'Can a simple graph exist with 15 vertices each of degree 5?', opts:['Yes, always possible','No — the handshaking theorem is violated','Yes, but only if it is directed','No — 15 is too many vertices'], ans:1, exp:'15 vertices × degree 5 = 75. The Handshaking theorem requires Σ deg(v) = 2m (always even). 75 is odd, so it is impossible.'},
+  {topic:'graphs', q:'In a directed graph, deg⁻(v) refers to:', opts:['Out-degree: number of edges leaving v','In-degree: number of edges entering v','Total degree of v','Number of neighbours of v'], ans:1, exp:'deg⁻(v) = in-degree = number of edges that have v as their endpoint (entering v). deg⁺(v) = out-degree = edges leaving v.'},
+  {topic:'graphs', q:'An adjacency matrix for a directed graph is:', opts:['Always symmetric','Only symmetric if the graph has no self-loops','Not necessarily symmetric','Always non-symmetric'], ans:2, exp:'In a directed graph, edge from i to j means A[i][j]=1 but A[j][i] might be 0. So the matrix is NOT necessarily symmetric. Undirected graphs always give symmetric matrices.'},
+  {topic:'graphs', q:'What is the neighbourhood N(v) of a node v?', opts:['The set of all edges incident to v','The set of all nodes adjacent to v','The degree of v','The set of nodes NOT connected to v'], ans:1, exp:'N(v) is the neighbourhood of v: the set of all vertices that are adjacent to (connected to) v by an edge.'},
+  {topic:'graphs', q:'In an undirected graph with m edges, what is Σ deg⁺(v)?', opts:['m','2m','m/2','Cannot be determined'], ans:0, exp:'In a directed graph, Σ deg⁺(v) = Σ deg⁻(v) = m. Each directed edge contributes exactly 1 to the out-degree sum and 1 to the in-degree sum.'},
+
+  // BIPARTITE
+  {topic:'bipartite', q:"Hall's Marriage Theorem states that a complete matching from V₁ exists if and only if:", opts:['|V₁| ≤ |V₂|','For every A ⊆ V₁, |N(A)| ≥ |A|','Every vertex in V₁ has degree ≥ 1','The graph is connected'], ans:1, exp:"Hall's condition: for EVERY subset A of V₁, the neighbourhood N(A) must be at least as large as A. This ensures each element of V₁ can be uniquely matched."},
+  {topic:'bipartite', q:'In a bipartite graph G = (V₁ ∪ V₂, E), edges can connect:', opts:['Any two vertices','Only vertices within V₁','Only vertices within V₂','Only vertices from V₁ to V₂'], ans:3, exp:'In a bipartite graph, edges only connect vertices from different partitions. There are no edges within V₁ or within V₂.'},
+  {topic:'bipartite', q:'A maximum matching is:', opts:['A matching where every vertex is matched','The largest possible matching (most edges)','A matching where every vertex in V₁ is matched','A matching with exactly |V₁| edges'], ans:1, exp:'A maximum matching is the one with the greatest number of edges. A complete matching (from V₁) means every vertex in V₁ is matched — these are different concepts.'},
+  {topic:'bipartite', q:'In the employee-task example, if {John, Graham} both only connect to {architecture}, Hall\'s condition fails because:', opts:['|V₁| > |V₂|','|N({John, Graham})| = 1 < |{John, Graham}| = 2','John and Graham are not adjacent','The graph is not bipartite'], ans:1, exp:"Hall's condition requires |N(A)| ≥ |A| for all subsets A. Here N({John,Graham}) = {architecture}, so |N(A)| = 1 < 2 = |A|. Hall's condition fails, so no complete matching exists."},
+
+  // OPERATIONS
+  {topic:'operations', q:'Two graphs are isomorphic if:', opts:['They have the same number of vertices','There exists a bijection between vertices that preserves edges','They have the same number of edges','They look identical when drawn'], ans:1, exp:'Isomorphism requires a bijection f: V₁→V₂ such that an edge {u,v} exists in G₁ if and only if {f(u),f(v)} exists in G₂. Same node/edge count is necessary but not sufficient.'},
+  {topic:'operations', q:'To quickly prove two graphs are NOT isomorphic, you can show:', opts:['They have different numbers of vertices OR different degree sequences','One is directed and one is not','They have different layouts when drawn','One has isolated nodes'], ans:0, exp:'Isomorphic graphs must be identical in all graph invariants: same number of vertices, same number of edges, same degree sequence. Finding any difference immediately disproves isomorphism.'},
+  {topic:'operations', q:'An induced subgraph on a vertex set S contains:', opts:['S and some edges between them','S and all edges from the original graph between vertices in S','All vertices and S edges','S and edges to vertices outside S'], ans:1, exp:'An induced subgraph keeps ALL edges from the original graph whose BOTH endpoints are in S. You pick the vertices, and the edges come along automatically.'},
+  {topic:'operations', q:'To convert a multigraph to a simple graph with minimal edge removal, you must:', opts:['Remove all edges','Remove all loops AND reduce multiple edges to one','Remove only loops','Remove only duplicate edges'], ans:1, exp:'A simple graph has no loops and at most one edge between any pair. To achieve this minimally: remove all loops (each counts as 1 removal) and reduce each set of parallel edges to one (removing k−1 from a set of k).'},
+
+  // CONNECTIVITY
+  {topic:'connectivity', q:'A connected undirected graph has:', opts:['At least one path between every pair of vertices','Exactly one path between every pair of vertices','No cycles','An Euler cycle'], ans:0, exp:'A connected graph has AT LEAST one path between every pair of vertices. There may be multiple paths. Exactly one path would make it a tree.'},
+  {topic:'connectivity', q:'A directed graph is strongly connected if:', opts:['Every vertex has at least one outgoing edge','For every pair a, b: there is a path from a to b and from b to a','The underlying undirected graph is connected','All vertices have equal in-degree and out-degree'], ans:1, exp:'Strongly connected means paths exist in BOTH directions between every pair of vertices. Weakly connected just means the underlying undirected graph is connected.'},
+  {topic:'connectivity', q:'Strongly connected components (SCCs) of a directed graph are:', opts:['Always equal to the number of vertices','Maximal strongly connected subgraphs','Minimal connected subgraphs','Identical to connected components'], ans:1, exp:'SCCs are maximal strongly connected subgraphs — you cannot add any more vertices without losing strong connectivity. Two vertices share an SCC iff they are mutually reachable.'},
+  {topic:'connectivity', q:'A simple path in a graph is one that:', opts:['Has only two endpoints','Does not repeat the same vertex','Does not repeat the same edge','Has no cycles'], ans:2, exp:'A simple path does not contain the same edge twice (not the same vertex, but the same edge). This is the definition from the lecture slides.'},
+  {topic:'connectivity', q:'If vertex u and v are mutually reachable, and v and w are mutually reachable, then:', opts:['u and w may or may not be mutually reachable','u and w are definitely mutually reachable','u and w are in different SCCs','We cannot determine the relationship'], ans:1, exp:'Mutual reachability is transitive. u↔v and v↔w implies we can go u→v→w and w→v→u, so u and w are mutually reachable. This is why vertices in the same SCC form an equivalence class.'},
+
+  // EULER
+  {topic:'euler', q:'An Euler cycle in an undirected graph exists if and only if:', opts:['All vertices have even degree','Exactly two vertices have odd degree','The graph is complete','No vertex has degree 1'], ans:0, exp:'An Euler cycle (visiting every edge exactly once, returning to start) exists if and only if EVERY vertex has even degree. This is a necessary and sufficient condition.'},
+  {topic:'euler', q:'An Euler PATH (not cycle) in an undirected graph exists if and only if:', opts:['All vertices have even degree','Exactly two vertices have odd degree','At least one vertex has odd degree','The graph has no cycles'], ans:1, exp:'An Euler path (not a cycle) exists iff exactly 2 vertices have odd degree. The path starts at one odd-degree vertex and ends at the other.'},
+  {topic:'euler', q:'The Königsberg bridge problem showed that 7 bridges could not be crossed each exactly once because:', opts:['The city graph had too many vertices','The graph had 4 vertices all with odd degree','The graph was disconnected','The graph had no Hamiltonian cycle'], ans:1, exp:'In the Königsberg bridge graph, all 4 vertices have odd degree (3 have degree 3, one has degree 5). An Euler path requires exactly 0 or 2 odd-degree vertices, so neither an Euler cycle nor path exists.'},
+  {topic:'euler', q:'A Hamiltonian cycle visits:', opts:['Every edge exactly once','Every vertex exactly once','Every edge and vertex exactly once','All even-degree vertices'], ans:1, exp:'A Hamiltonian cycle visits every VERTEX exactly once and returns to the start. An Euler cycle visits every EDGE exactly once. These are fundamentally different problems.'},
+  {topic:'euler', q:"Dirac's theorem states that a Hamiltonian cycle is guaranteed if:", opts:['The graph has no odd-degree vertices','n ≥ 3 and every vertex has degree ≥ n/2','n ≥ 3 and deg(u)+deg(v) ≥ n for non-adjacent u,v','The graph is bipartite'], ans:1, exp:"Dirac's theorem: if n ≥ 3 and every vertex has degree ≥ n/2, then G has a Hamiltonian cycle. It is sufficient but not necessary — a graph can have a Hamilton cycle without satisfying this."},
+  {topic:'euler', q:"Ore's theorem guarantees a Hamiltonian cycle when:", opts:['Every vertex degree is at least n/2','For all non-adjacent u, v: deg(u) + deg(v) ≥ n','The graph has an Euler cycle','The graph is complete'], ans:1, exp:"Ore's theorem: for n ≥ 3, if for every pair of non-adjacent vertices u and v, deg(u) + deg(v) ≥ n, then the graph has a Hamiltonian cycle. Dirac's theorem is a special case of Ore's."},
+  {topic:'euler', q:'For a directed Euler cycle to exist, we need:', opts:['All vertices to have even total degree','deg⁺(v) = deg⁻(v) for every vertex v','Exactly two vertices where deg⁺ ≠ deg⁻','The graph to be strongly connected only'], ans:1, exp:'A directed graph has an Euler cycle if it is connected (in the relevant sense) and deg⁺(v) = deg⁻(v) for EVERY vertex — out-degree equals in-degree at every vertex.'},
+
+  // PROBABILITY
+  {topic:'probability', q:'What is the probability of selecting an ace from a standard 52-card deck?', opts:['1/13','1/4','4/52 = 1/13','1/52'], ans:0, exp:'There are 4 aces in a 52-card deck. P(ace) = 4/52 = 1/13. Both A and C are correct but written differently — 4/52 = 1/13.'},
+  {topic:'probability', q:'Events E and F are independent if and only if:', opts:['They cannot both occur','P(E∩F) = P(E) + P(F)','P(E∩F) = P(E) · P(F)','P(E|F) = P(F)'], ans:2, exp:'Independence means P(E∩F) = P(E)·P(F). Equivalently, P(E|F) = P(E) — knowing F happened tells you nothing about E.'},
+  {topic:'probability', q:"Bonferroni's inequality states:", opts:['P(E∩F) ≤ P(E) + P(F)','P(E∩F) ≥ P(E) + P(F) − 1','P(E∪F) ≥ P(E) + P(F)','P(E∩F) = P(E) · P(F)'], ans:1, exp:"Bonferroni's inequality: P(E∩F) ≥ P(E) + P(F) − 1. This gives a lower bound on the probability of both events occurring."},
+  {topic:'probability', q:'If E and F are independent events, which of the following is also true?', opts:['E and F are disjoint','Ē and F̄ are independent','P(E) = P(F)','E and F have the same probability'], ans:1, exp:'If E and F are independent, then Ē and F̄ are also independent, as are E and F̄, and Ē and F. Independence is preserved under complementation.'},
+  {topic:'probability', q:'The formula P(A|B) = P(A∩B) / P(B) gives us:', opts:['The probability of A or B','The probability of A given that B has occurred','The probability of B given A','The joint probability'], ans:1, exp:'P(A|B) is conditional probability — the probability of event A occurring given that event B has already occurred. It requires P(B) > 0.'},
+  {topic:'probability', q:'For the birthday problem with 23 people in a room, which is the correct approach to find the probability of a shared birthday?', opts:['23/365','1 − P(all different birthdays)','C(23,2)/365','23 × 22 / 365'], ans:1, exp:'Use the complement: P(at least one match) = 1 − P(no matches) = 1 − (365/365 × 364/365 × 363/365 × ... × 343/365). With 23 people this is approximately 0.507 — over 50%!'},
+
+  // BAYES
+  {topic:'bayes', q:"In Bayes' Theorem, P(A|B) = P(A)·P(B|A)/P(B), what is P(A) called?", opts:['The likelihood','The posterior probability','The prior probability','The marginal probability'], ans:2, exp:"P(A) is the PRIOR probability — our initial belief about A before observing B. P(A|B) is the POSTERIOR — our updated belief after seeing B. P(B|A) is the likelihood."},
+  {topic:'bayes', q:'When should you use the full form of Bayes\' Theorem (with both P(A) and P(Ā))?', opts:['Always','When P(B) is not directly known and depends on whether A occurred','When A and B are independent','When P(A) = 0.5'], ans:1, exp:'Use the full form P(A|B) = P(A)P(B|A)/[P(A)P(B|A)+P(Ā)P(B|Ā)] when P(B) is not given directly — when the probability of B depends on whether A happened or not.'},
+  {topic:'bayes', q:'A disease affects 0.01% of people. A test is 90% accurate (P(+|disease)=0.9, P(+|healthy)=0.1). If you test positive, the probability you have the disease is:', opts:['Approximately 90%','Approximately 50%','Very low, less than 1%','Exactly 0.9%'], ans:2, exp:"The prior probability P(disease) = 0.0001 is so small that even a positive test mostly reflects false positives. Using Bayes: P(disease|+) = (0.0001×0.9)/[(0.0001×0.9)+(0.9999×0.1)] ≈ 0.0009 = 0.09%. Counter-intuitive but important!"},
+  {topic:'bayes', q:"Bayes' Theorem is described as 'inverting conditional events' because:", opts:['It reverses the graph structure','It expresses P(A|B) in terms of P(B|A)','It turns prior into posterior','It works backwards from evidence'], ans:1, exp:"Bayes' theorem lets us flip the conditional. We often know P(B|A) (e.g. test accuracy) but want P(A|B) (do we have the disease?). Bayes gives us the tool to invert this."},
+  {topic:'bayes', q:'The word "Rolex" appears in 250/2000 spam emails and 5/1000 non-spam. Assuming equal prior probability of spam/non-spam, P(spam|"Rolex") ≈', opts:['0.5 (50/50)','0.125 (12.5%)','0.962 (96.2%)','0.25 (25%)'], ans:2, exp:'P(spam|Rolex) = (0.5 × 0.125) / [(0.5 × 0.125) + (0.5 × 0.005)] = 0.0625 / 0.065 ≈ 0.962. The word Rolex is a very strong spam indicator.'},
+
+  // DISTRIBUTIONS
+  {topic:'distributions', q:'The binomial distribution B(n, p) models:', opts:['One experiment with two outcomes','n independent Bernoulli trials counting the number of successes','Any n trials','Trials where success probability changes each time'], ans:1, exp:'B(n,p) models n INDEPENDENT Bernoulli trials (same p each time), counting total successes X. P(X=k) = C(n,k) × pᵏ × (1-p)^(n-k).'},
+  {topic:'distributions', q:'For B(n, p), the expected value E[X] is:', opts:['n + p','n/p','np','p/n'], ans:2, exp:'The expected (average) number of successes in n Bernoulli trials with success probability p is E[X] = np. Simple and important formula.'},
+  {topic:'distributions', q:'You roll a fair die 4 times. The probability of getting exactly two 6s is:', opts:['C(4,2) × (1/6)² × (5/6)²','(1/6)² × (5/6)²','(1/6)² ','C(4,2) × (1/6)⁴'], ans:0, exp:'Using binomial: P(X=2) = C(4,2) × (1/6)² × (5/6)² = 6 × 1/36 × 25/36 = 150/1296 ≈ 0.116. C(4,2) counts which 2 of the 4 rolls show a 6.'},
+  {topic:'distributions', q:'The probability of at least one failure in n Bernoulli trials is:', opts:['1 − pⁿ','pⁿ','(1−p)ⁿ','np'], ans:0, exp:'P(at least one failure) = 1 − P(no failures) = 1 − pⁿ. The complement of "all successes" gives "at least one failure".'},
+];
+
+// ===================== FLASHCARD DATA =====================
+
+const FLASHCARDS = [
+  {topic:'graphs', q:'State the Handshaking Theorem', a:'Σ deg(v) = 2m. The sum of all vertex degrees in any graph equals twice the number of edges. Consequence: the number of odd-degree vertices is always even.'},
+  {topic:'graphs', q:'What is a pendant node?', a:'A node with degree exactly 1 — connected to the graph by a single edge.'},
+  {topic:'graphs', q:'What is an isolated node?', a:'A node with degree 0 — not connected to any other node.'},
+  {topic:'graphs', q:'What is the difference between a simple graph and a multigraph?', a:'A simple graph has no loops and at most one edge between any pair of nodes. A multigraph allows multiple (parallel) edges between the same pair of nodes.'},
+  {topic:'graphs', q:'What does the adjacency matrix look like for an undirected graph?', a:'It is always SYMMETRIC. If there is an edge between nodes i and j, then A[i][j] = A[j][i] = 1.'},
+  {topic:'graphs', q:'Define deg⁺(v) and deg⁻(v) in a directed graph', a:'deg⁺(v) = out-degree: number of edges LEAVING v. deg⁻(v) = in-degree: number of edges ENTERING v. A loop contributes 1 to each.'},
+  {topic:'bipartite', q:"State Hall's Marriage Theorem", a:"A bipartite graph G = (V₁ ∪ V₂, E) has a complete matching from V₁ to V₂ if and only if for every subset A ⊆ V₁, |N(A)| ≥ |A|. (The neighbourhood of any subset is at least as large as the subset itself.)"},
+  {topic:'bipartite', q:'What is the difference between a complete matching and a maximum matching?', a:'Complete matching: every vertex in V₁ is matched (to some vertex in V₂). Maximum matching: the matching with the most edges possible. A complete matching from V₁ is maximum when |V₁| ≤ |V₂|.'},
+  {topic:'operations', q:'What makes two graphs isomorphic?', a:'There exists a bijection f: V₁ → V₂ such that edge {u,v} ∈ E₁ ↔ edge {f(u),f(v)} ∈ E₂. Essentially: you can rename the nodes of one graph to exactly match the other.'},
+  {topic:'operations', q:'Name three graph invariants that must match for isomorphism', a:'1) Same number of vertices; 2) Same number of edges; 3) Same degree sequence (sorted list of degrees). If any of these differ, the graphs are NOT isomorphic.'},
+  {topic:'operations', q:'What is an induced subgraph?', a:"The subgraph induced by a vertex set S contains all vertices in S and ALL edges from the original graph whose BOTH endpoints are in S. You pick the vertices, the edges 'come along'."},
+  {topic:'connectivity', q:'Define a connected undirected graph', a:'An undirected graph where there is a path between EVERY pair of distinct vertices. If any two vertices have no path between them, the graph is disconnected.'},
+  {topic:'connectivity', q:'Define strongly connected vs weakly connected (directed graph)', a:'Strongly connected: for every pair a, b, there is a directed path from a to b AND from b to a.\nWeakly connected: the underlying UNDIRECTED graph (ignoring directions) is connected.'},
+  {topic:'connectivity', q:'What is a strongly connected component (SCC)?', a:'A maximal strongly connected subgraph. Two vertices are in the same SCC iff they are mutually reachable (paths in both directions). SCCs are either identical or completely disjoint.'},
+  {topic:'euler', q:'State the condition for an Euler CYCLE in an undirected graph', a:'A connected graph has an Euler cycle (traversing every edge exactly once in a closed walk) if and only if EVERY vertex has EVEN degree.'},
+  {topic:'euler', q:'State the condition for an Euler PATH (not cycle) in an undirected graph', a:'A connected graph has an Euler path (not a cycle) if and only if it has EXACTLY TWO vertices of odd degree. The path starts at one and ends at the other.'},
+  {topic:'euler', q:'What is the difference between an Euler cycle and a Hamiltonian cycle?', a:'Euler cycle: traverses every EDGE exactly once. Hamiltonian cycle: visits every VERTEX exactly once. Both return to start. They are fundamentally different!'},
+  {topic:'euler', q:"State Dirac's Theorem", a:"If a simple graph G has n ≥ 3 vertices and every vertex has degree ≥ n/2, then G has a Hamiltonian cycle. (Sufficient but NOT necessary condition.)"},
+  {topic:'euler', q:"State Ore's Theorem", a:"If G has n ≥ 3 vertices and for every pair of NON-ADJACENT vertices u and v, deg(u) + deg(v) ≥ n, then G has a Hamiltonian cycle. Dirac's theorem is a special case of Ore's."},
+  {topic:'probability', q:'State the formula for conditional probability P(A|B)', a:'P(A|B) = P(A∩B) / P(B), where P(B) > 0. This gives the probability of A occurring given that B has already occurred.'},
+  {topic:'probability', q:'When are two events independent?', a:'Events E and F are independent if P(E∩F) = P(E)·P(F). Equivalently, P(E|F) = P(E) — knowing F gives no information about E.'},
+  {topic:'probability', q:"State Bonferroni's Inequality", a:"P(E∩F) ≥ P(E) + P(F) − 1. Gives a lower bound on the probability of both events occurring simultaneously."},
+  {topic:'bayes', q:"State Bayes' Theorem (both forms)", a:"Simple form: P(A|B) = P(A)·P(B|A) / P(B)\n\nFull form (when P(B) depends on A): P(A|B) = P(A)·P(B|A) / [P(A)·P(B|A) + P(Ā)·P(B|Ā)]"},
+  {topic:'bayes', q:"Name the four terms in Bayes' Theorem and what they mean", a:"P(A) = prior probability (initial belief about A)\nP(A|B) = posterior probability (updated belief after seeing B)\nP(B|A) = likelihood (how probable is B if A is true)\nP(B) = marginal probability of B"},
+  {topic:'bayes', q:"Why does a positive disease test not mean you probably have the disease?", a:"Because the prior probability P(disease) may be very small. Bayes' theorem shows that when a condition is rare, even a highly accurate test produces mostly false positives. The posterior P(disease|+) depends heavily on the prior."},
+  {topic:'distributions', q:'State the binomial probability formula', a:'P(X=k) = C(n,k) · pᵏ · (1−p)^(n−k), where n = number of trials, p = success probability, k = number of successes. C(n,k) = n!/(k!(n-k)!).'},
+  {topic:'distributions', q:'What is the expected value of a Binomial(n,p) random variable?', a:'E[X] = np. On average, you expect np successes in n Bernoulli trials each with success probability p.'},
+  {topic:'distributions', q:'In n Bernoulli trials with success probability p, what is P(at least one failure)?', a:'P(at least one failure) = 1 − P(no failures) = 1 − pⁿ. Use the complement!'},
+];
+
+// ===================== NAVIGATION =====================
+
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  const idx = ['home','notes','quiz','flashcards','cheatsheet'].indexOf(name);
+  document.querySelectorAll('nav button')[idx].classList.add('active');
+  if (name === 'notes') {
+    document.getElementById('notes-list').style.display = '';
+    document.getElementById('topic-detail').style.display = 'none';
+  }
+  if (name === 'flashcards') initFlashcards();
+}
+
+function openTopic(topicId) {
+  const topic = TOPICS[topicId];
+  showView('notes');
+  document.getElementById('notes-list').style.display = 'none';
+  const detail = document.getElementById('topic-detail');
+  detail.style.display = '';
+  detail.innerHTML = `
+    <button class="back-btn" onclick="document.getElementById('notes-list').style.display='';document.getElementById('topic-detail').style.display='none'">← Back to Topics</button>
+    <div class="topic-content">
+      <h2><span>${topic.icon}</span> ${topic.name}</h2>
+      ${topic.sections.map(s => `
+        <div class="section-block">
+          <h3>${s.title}</h3>
+          ${s.content}
+        </div>
+      `).join('')}
+      <button class="btn btn-primary" onclick="showView('quiz');startQuizTopic('${topicId}')" style="margin-top:16px;margin-right:8px;">Quiz this topic</button>
+      <button class="btn btn-secondary" onclick="showView('flashcards');setFcTopic('${topicId}')" style="margin-top:16px;">Flashcards for this topic</button>
+    </div>
+  `;
+}
+
+// ===================== QUIZ ENGINE =====================
+
+let quizQuestions = [];
+let currentQ = 0;
+let answered = false;
+let score = 0;
+let topicScores = {};
+
+function startQuiz() {
+  const filter = document.getElementById('quiz-topic-filter').value;
+  let pool = filter === 'all' ? QUESTIONS : QUESTIONS.filter(q => q.topic === filter);
+  // Shuffle
+  quizQuestions = [...pool].sort(() => Math.random() - 0.5).slice(0, Math.min(15, pool.length));
+  currentQ = 0;
+  score = 0;
+  topicScores = {};
+  document.getElementById('result-screen').classList.remove('show');
+  renderQuestion();
+}
+
+function startQuizTopic(topicId) {
+  document.getElementById('quiz-topic-filter').value = topicId;
+  startQuiz();
+}
+
+function renderQuestion() {
+  if (currentQ >= quizQuestions.length) {
+    showResults();
+    return;
+  }
+  answered = false;
+  const q = quizQuestions[currentQ];
+  const pct = (currentQ / quizQuestions.length) * 100;
+  document.getElementById('quiz-progress').style.width = pct + '%';
+
+  const topicNames = {graphs:'Graph Basics',bipartite:'Bipartite & Matching',operations:'Graph Operations',connectivity:'Connectivity',euler:'Euler & Hamiltonian',probability:'Probability',bayes:"Bayes' Theorem",distributions:'Distributions'};
+  const letters = ['A','B','C','D'];
+
+  document.getElementById('q-container').innerHTML = `
+    <div class="question-card">
+      <div class="qnum">Question ${currentQ+1} of ${quizQuestions.length}</div>
+      <div class="qtopic">${topicNames[q.topic]}</div>
+      <h3>${q.q}</h3>
+      <div class="options">
+        ${q.opts.map((o,i) => `<button class="option" onclick="selectAnswer(${i})" id="opt-${i}"><span class="opt-letter">${letters[i]}</span> ${o}</button>`).join('')}
+      </div>
+      <div class="explanation" id="explanation">${q.exp}</div>
+    </div>
+    <div class="quiz-nav">
+      <div class="score-badge">Score: <span>${score}/${currentQ}</span></div>
+      <button class="btn btn-primary" id="next-btn" onclick="nextQuestion()" style="display:none;">Next Question →</button>
+    </div>
+  `;
+}
+
+function selectAnswer(chosen) {
+  if (answered) return;
+  answered = true;
+  const q = quizQuestions[currentQ];
+  const opts = document.querySelectorAll('.option');
+  opts.forEach(o => o.disabled = true);
+
+  if (!topicScores[q.topic]) topicScores[q.topic] = {correct:0,total:0};
+  topicScores[q.topic].total++;
+
+  if (chosen === q.ans) {
+    opts[chosen].classList.add('correct');
+    score++;
+    topicScores[q.topic].correct++;
+  } else {
+    opts[chosen].classList.add('wrong');
+    opts[q.ans].classList.add('correct');
+  }
+  document.getElementById('explanation').classList.add('show');
+  if (chosen !== q.ans) document.getElementById('explanation').classList.add('wrong-exp');
+  document.getElementById('next-btn').style.display = 'block';
+}
+
+function nextQuestion() {
+  currentQ++;
+  renderQuestion();
+}
+
+function showResults() {
+  document.getElementById('q-container').innerHTML = '';
+  document.getElementById('quiz-progress').style.width = '100%';
+  const pct = Math.round((score / quizQuestions.length) * 100);
+  const screen = document.getElementById('result-screen');
+  screen.classList.add('show');
+  document.getElementById('result-pct').textContent = pct + '%';
+  const circle = document.getElementById('result-circle');
+  circle.className = 'result-circle' + (pct >= 50 ? '' : ' fail');
+
+  let msg, sub;
+  if (pct >= 80) { msg = '🎉 Excellent work!'; sub = 'You clearly know this material well. Keep it up!'; }
+  else if (pct >= 60) { msg = '👍 Good effort!'; sub = 'Getting there — review the topics you missed.'; }
+  else if (pct >= 40) { msg = '📚 Keep studying!'; sub = 'Focus on the topics below where you lost marks.'; }
+  else { msg = '💪 Time to hit the notes!'; sub = 'Go back to the revision notes and try again.'; }
+
+  document.getElementById('result-msg').textContent = msg;
+  document.getElementById('result-sub').textContent = sub;
+
+  const topicNames = {graphs:'Graph Basics',bipartite:'Bipartite & Matching',operations:'Graph Operations',connectivity:'Connectivity',euler:'Euler & Hamiltonian',probability:'Probability',bayes:"Bayes' Theorem",distributions:'Distributions'};
+  let breakdown = '<h4>Performance by Topic</h4>';
+  for (const [topic, s] of Object.entries(topicScores)) {
+    const tp = Math.round((s.correct/s.total)*100);
+    breakdown += `<div class="breakdown-item"><span>${topicNames[topic]}</span><span class="correct-count">${s.correct}/${s.total} (${tp}%)</span></div>`;
+  }
+  document.getElementById('results-breakdown').innerHTML = breakdown;
+}
+
+// ===================== FLASHCARDS =====================
+
+let fcCards = [...FLASHCARDS];
+let fcIndex = 0;
+let fcFlipped = false;
+let fcActiveTopic = 'all';
+let fcHard = [];
+
+function initFlashcards() {
+  const topicBtns = document.getElementById('fc-topic-btns');
+  const topicNames = {all:'All Topics',graphs:'Graph Basics',bipartite:'Bipartite',operations:'Isomorphism',connectivity:'Connectivity',euler:'Euler & Hamilton',probability:'Probability',bayes:"Bayes'",distributions:'Distributions'};
+  topicBtns.innerHTML = Object.entries(topicNames).map(([k,v]) =>
+    `<button class="fc-topic-btn ${k === fcActiveTopic ? 'active' : ''}" onclick="setFcTopic('${k}')">${v}</button>`
+  ).join('');
+  loadFcCards();
+}
+
+function setFcTopic(topic) {
+  fcActiveTopic = topic;
+  document.querySelectorAll('.fc-topic-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent.includes(topic) || (topic === 'all' && b.textContent === 'All Topics'));
+  });
+  loadFcCards();
+  showView('flashcards');
+}
+
+function loadFcCards() {
+  fcCards = fcActiveTopic === 'all' ? [...FLASHCARDS] : FLASHCARDS.filter(c => c.topic === fcActiveTopic);
+  fcCards = fcCards.sort(() => Math.random() - 0.5);
+  fcIndex = 0;
+  fcFlipped = false;
+  showCard();
+}
+
+function showCard() {
+  if (fcCards.length === 0) {
+    document.getElementById('fc-body').textContent = 'No cards for this topic.';
+    return;
+  }
+  const card = fcCards[fcIndex];
+  fcFlipped = false;
+  const topicNames = {graphs:'Graph Basics',bipartite:'Bipartite',operations:'Isomorphism',connectivity:'Connectivity',euler:'Euler & Hamilton',probability:'Probability',bayes:"Bayes'",distributions:'Distributions'};
+  document.getElementById('fc-side').textContent = 'Question';
+  document.getElementById('fc-topic-badge').textContent = topicNames[card.topic] || card.topic;
+  document.getElementById('fc-body').textContent = card.q;
+  document.getElementById('fc-hint').textContent = 'Tap to reveal answer';
+  document.getElementById('fc-rating').style.display = 'none';
+  document.getElementById('fc-counter').textContent = `Card ${fcIndex + 1} of ${fcCards.length}`;
+  document.getElementById('flashcard').style.background = 'var(--card)';
+}
+
+function flipCard() {
+  const card = fcCards[fcIndex];
+  if (!fcFlipped) {
+    fcFlipped = true;
+    document.getElementById('fc-side').textContent = 'Answer';
+    document.getElementById('fc-body').textContent = card.a;
+    document.getElementById('fc-hint').textContent = '';
+    document.getElementById('fc-rating').style.display = 'flex';
+    document.getElementById('flashcard').style.background = 'var(--card2)';
+  }
+}
+
+function rateCard(rating) {
+  if (rating === 'hard') {
+    fcHard.push(fcCards[fcIndex]);
+  }
+  fcNext();
+}
+
+function fcNext() {
+  fcIndex = (fcIndex + 1) % fcCards.length;
+  showCard();
+}
+
+function fcPrev() {
+  fcIndex = (fcIndex - 1 + fcCards.length) % fcCards.length;
+  showCard();
+}
+
+function shuffleCards() {
+  fcCards = fcCards.sort(() => Math.random() - 0.5);
+  fcIndex = 0;
+  showCard();
+}
+
+// ===================== COUNTDOWN =====================
+
+function updateCountdown() {
+  const testDate = new Date('2026-04-02T00:00:00');
+  const now = new Date();
+  const diff = testDate - now;
+  const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+  document.getElementById('daysLeft').textContent = Math.max(0, days);
+  document.getElementById('testDateStr').textContent = 'Thursday 2nd April';
+}
+
+updateCountdown();
+setInterval(updateCountdown, 60000);
+
+// Init
+startQuiz();
+initFlashcards();
+</script>
+</body>
+</html>
