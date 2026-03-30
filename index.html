@@ -18,6 +18,7 @@
     <button onclick="showView('flashcards')">🃏 Flashcards</button>
     <button onclick="showView('cheatsheet')">📋 Cheatsheet</button>
     <button onclick="showView('exam')">📝 Exam Practice</button>
+    <button onclick="showView('progress')">📊 Progress</button>
   </div>
   <div class="countdown">
     <div class="days" id="daysLeft">5</div>
@@ -96,9 +97,11 @@
 
   <div class="home-actions">
     <button class="btn btn-primary" onclick="showView('quiz');startQuiz()">Start Quiz (All Topics)</button>
+    <button class="btn btn-secondary" onclick="startKnowledgeTest()">🎯 Knowledge Test</button>
     <button class="btn btn-secondary" onclick="showView('flashcards')">Practice Flashcards</button>
     <button class="btn btn-secondary" onclick="showView('exam')">Exam Practice</button>
     <button class="btn btn-secondary" onclick="showView('cheatsheet')">Quick Cheatsheet</button>
+    <button class="btn btn-secondary" onclick="showView('progress')">📊 My Progress</button>
   </div>
 </div>
 
@@ -177,6 +180,7 @@
         <option value="999">All questions</option>
       </select>
       <button class="btn btn-primary" onclick="startQuiz()">New Quiz</button>
+      <button class="btn btn-secondary" onclick="startKnowledgeTest()">🎯 Knowledge Test</button>
     </div>
   </div>
 
@@ -196,6 +200,8 @@
     <div class="results-breakdown" id="results-breakdown"></div>
     <div style="margin-top:16px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
       <button class="btn btn-primary" onclick="startQuiz()">Try Again</button>
+      <button class="btn btn-secondary" onclick="startKnowledgeTest()">🎯 Knowledge Test</button>
+      <button class="btn btn-secondary" onclick="showView('progress')">📊 My Progress</button>
       <button class="btn btn-secondary" onclick="showView('exam')">Exam Practice</button>
       <button class="btn btn-secondary" onclick="showView('home')">Home</button>
     </div>
@@ -372,6 +378,37 @@
   <p style="color:var(--muted);font-size:0.88rem;margin-bottom:24px;">Mock exam questions with hints and full worked solutions. Try each part yourself before revealing the answer.</p>
 
   <div id="exam-practice-container"></div>
+</div>
+
+<!-- ============================================================
+     PROGRESS & AI EXPORT
+     ============================================================ -->
+<div id="view-progress" class="view">
+  <h2 style="margin-bottom:6px;">📊 Progress &amp; Analytics</h2>
+  <p style="color:var(--muted);font-size:0.88rem;margin-bottom:24px;">Track performance across quizzes, knowledge tests and flashcards. Export your data to get personalised AI help.</p>
+
+  <div id="progress-overview" class="stats-grid" style="max-width:800px;margin:0 auto 28px;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));"></div>
+
+  <div class="section-block" style="margin-bottom:20px;">
+    <h3>Topic Mastery</h3>
+    <div id="topic-mastery-list"></div>
+  </div>
+
+  <div class="section-block" style="margin-bottom:20px;">
+    <h3>Recent Activity</h3>
+    <div id="recent-activity-list"></div>
+  </div>
+
+  <div class="section-block">
+    <h3>AI Study Helper Export</h3>
+    <p style="color:var(--muted);font-size:0.83rem;margin-bottom:14px;">Copy this text and paste it into any AI (Claude, ChatGPT, etc.) to get personalised help on your weakest topics.</p>
+    <textarea id="ai-export-text" class="ai-export-textarea" readonly placeholder="Complete a quiz or flashcard session first, then your progress data will appear here."></textarea>
+    <div style="margin-top:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="copyAIExport()">Copy to Clipboard</button>
+      <button class="btn btn-secondary" onclick="renderProgress()">Refresh Data</button>
+      <span id="copy-confirm" style="color:var(--green);font-size:0.85rem;display:none;">Copied!</span>
+    </div>
+  </div>
 </div>
 
 <script src="data.js"></script>
