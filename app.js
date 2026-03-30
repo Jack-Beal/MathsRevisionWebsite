@@ -10,9 +10,10 @@ function showView(id) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
   document.getElementById('view-' + id).classList.add('active');
-  const idx = ['home','notes','quiz','flashcards','cheatsheet','exam'].indexOf(id);
+  const idx = ['home','notes','quiz','flashcards','cheatsheet','exam','progress'].indexOf(id);
   const btns = document.querySelectorAll('.tabs button');
   if (idx >= 0 && btns[idx]) btns[idx].classList.add('active');
+  if (id === 'progress') renderProgress();
   window.scrollTo(0, 0);
 }
 
@@ -62,6 +63,7 @@ let currentQ = 0;
 let score = 0;
 let answered = false;
 let topicScores = {};
+let isKnowledgeTest = false;
 
 const TOPIC_NAMES = {
   permutations: 'Permutations',
@@ -76,6 +78,7 @@ const TOPIC_NAMES = {
 };
 
 function startQuiz() {
+  isKnowledgeTest = false;
   const filter = document.getElementById('quiz-topic-filter').value;
   const sizeEl = document.getElementById('quiz-size');
   const size = sizeEl ? parseInt(sizeEl.value) || 15 : 15;
@@ -86,6 +89,27 @@ function startQuiz() {
   pool = pool.sort(() => Math.random() - 0.5);
   quizQuestions = pool.slice(0, Math.min(size, pool.length));
 
+  currentQ = 0;
+  score = 0;
+  topicScores = {};
+  answered = false;
+
+  document.getElementById('result-screen').classList.remove('show');
+  renderQuestion();
+}
+
+function startKnowledgeTest() {
+  isKnowledgeTest = true;
+  showView('quiz');
+
+  // 2 questions per topic, covering all 9 topics (18 questions total)
+  const pool = [];
+  Object.keys(TOPIC_NAMES).forEach(topic => {
+    const topicQs = ALL_QUESTIONS.filter(q => q.topic === topic).sort(() => Math.random() - 0.5);
+    pool.push(...topicQs.slice(0, 2));
+  });
+
+  quizQuestions = pool.sort(() => Math.random() - 0.5);
   currentQ = 0;
   score = 0;
   topicScores = {};
@@ -109,8 +133,8 @@ function renderQuestion() {
   const letters = ['A', 'B', 'C', 'D'];
   document.getElementById('q-container').innerHTML = `
     <div class="question-card">
-      <div class="qnum">Question ${currentQ + 1} of ${quizQuestions.length}</div>
-      <div class="qtopic">${TOPIC_NAMES[q.topic] || q.topic}</div>
+      <div class="qnum">${isKnowledgeTest ? 'Knowledge Test — ' : ''}Question ${currentQ + 1} of ${quizQuestions.length}</div>
+      <div class="qtopic">${isKnowledgeTest ? '🎯 ' : ''}${TOPIC_NAMES[q.topic] || q.topic}</div>
       <h3>${q.q}</h3>
       <div class="options">
         ${q.opts.map((opt, i) => `
@@ -178,7 +202,10 @@ function showResults() {
   else circle.classList.add('fail');
 
   let msg, sub;
-  if (pct >= 80) { msg = 'Excellent work!'; sub = 'You clearly know this material. Keep it up!'; }
+  if (isKnowledgeTest) {
+    msg = 'Knowledge Test Complete!';
+    sub = pct >= 70 ? 'Great overall knowledge! Check the breakdown for any gaps.' : 'See the topic breakdown below — focus on your red areas.';
+  } else if (pct >= 80) { msg = 'Excellent work!'; sub = 'You clearly know this material. Keep it up!'; }
   else if (pct >= 70) { msg = 'Above pass threshold!'; sub = 'You\'re on track for 70%. Review missed topics.'; }
   else if (pct >= 50) { msg = 'Getting there!'; sub = 'Focus on the weak topics below to get to 70%.'; }
   else { msg = 'Time to review the notes!'; sub = 'Go through the revision notes, then try again.'; }
@@ -202,14 +229,19 @@ function showResults() {
   document.getElementById('results-breakdown').innerHTML = breakdown;
 
   // Save to localStorage
-  saveQuizResult(pct);
+  saveQuizResult(pct, isKnowledgeTest ? 'knowledge' : 'quiz');
 }
 
-function saveQuizResult(pct) {
+function saveQuizResult(pct, type) {
   try {
     const results = JSON.parse(localStorage.getItem('cs11003_results') || '[]');
-    results.push({ date: new Date().toISOString(), pct });
-    if (results.length > 20) results.shift();
+    results.push({
+      date: new Date().toISOString(),
+      pct,
+      type: type || 'quiz',
+      topicBreakdown: JSON.parse(JSON.stringify(topicScores))
+    });
+    if (results.length > 50) results.shift();
     localStorage.setItem('cs11003_results', JSON.stringify(results));
     updateHomepageStats();
   } catch(e) {}
@@ -225,6 +257,7 @@ let fcFlipped = false;
 let fcActiveTopic = 'all';
 let fcSession = { easy: 0, hard: 0, medium: 0 };
 let fcHardCards = [];
+let fcTopicSession = {};
 
 function initFlashcards() {
   const topicBtns = document.getElementById('fc-topic-btns');
@@ -270,6 +303,7 @@ function loadFcCards() {
   fcIndex = 0;
   fcFlipped = false;
   fcSession = { easy: 0, hard: 0, medium: 0 };
+  fcTopicSession = {};
   showCard();
 }
 
@@ -308,6 +342,9 @@ function flipCard() {
 
 function rateCard(rating) {
   fcSession[rating]++;
+  const card = fcCards[fcIndex];
+  if (!fcTopicSession[card.topic]) fcTopicSession[card.topic] = { easy: 0, medium: 0, hard: 0 };
+  fcTopicSession[card.topic][rating]++;
   if (rating === 'hard') {
     // Put hard cards at the end to review again
     fcHardCards.push(fcCards[fcIndex]);
@@ -348,6 +385,23 @@ function showFcComplete() {
   document.getElementById('fc-hint').textContent = 'Click Shuffle to restart';
   document.getElementById('fc-rating').style.display = 'none';
   document.getElementById('fc-counter').textContent = `Reviewed all ${fcCards.length} cards`;
+  saveFcSession();
+}
+
+function saveFcSession() {
+  try {
+    const sessions = JSON.parse(localStorage.getItem('cs11003_fc_sessions') || '[]');
+    sessions.push({
+      date: new Date().toISOString(),
+      topic: fcActiveTopic,
+      easy: fcSession.easy,
+      medium: fcSession.medium,
+      hard: fcSession.hard,
+      topicBreakdown: JSON.parse(JSON.stringify(fcTopicSession))
+    });
+    if (sessions.length > 50) sessions.shift();
+    localStorage.setItem('cs11003_fc_sessions', JSON.stringify(sessions));
+  } catch(e) {}
 }
 
 function updateFcProgress() {
@@ -443,6 +497,269 @@ function updateHomepageStats() {
       `;
     }
   } catch(e) {}
+}
+
+// ============================================================
+// PROGRESS & AI EXPORT
+// ============================================================
+
+const TOPIC_ICONS = {
+  permutations: '🔢', graphs: '🕸️', bipartite: '🔗',
+  operations: '🔀', connectivity: '🔌', euler: '🌉',
+  probability: '🎲', bayes: '🔮', distributions: '📊'
+};
+
+function renderProgress() {
+  try {
+    const results = JSON.parse(localStorage.getItem('cs11003_results') || '[]');
+    const fcSessions = JSON.parse(localStorage.getItem('cs11003_fc_sessions') || '[]');
+
+    // --- Overview Stats ---
+    const quizCount = results.filter(r => r.type !== 'knowledge').length;
+    const ktCount = results.filter(r => r.type === 'knowledge').length;
+    const avgScore = results.length > 0
+      ? Math.round(results.reduce((s, r) => s + r.pct, 0) / results.length) : 0;
+    const totalCards = fcSessions.reduce((s, ses) => s + ses.easy + ses.medium + ses.hard, 0);
+
+    const overviewEl = document.getElementById('progress-overview');
+    if (overviewEl) {
+      overviewEl.innerHTML = `
+        <div class="stat-card"><div class="stat-val">${quizCount}</div><div class="stat-label">Quizzes Done</div></div>
+        <div class="stat-card"><div class="stat-val">${ktCount}</div><div class="stat-label">Knowledge Tests</div></div>
+        <div class="stat-card"><div class="stat-val">${avgScore > 0 ? avgScore + '%' : '—'}</div><div class="stat-label">Avg Score</div></div>
+        <div class="stat-card"><div class="stat-val">${totalCards}</div><div class="stat-label">Cards Reviewed</div></div>
+      `;
+    }
+
+    // --- Build per-topic data ---
+    const topicData = {};
+    Object.keys(TOPIC_NAMES).forEach(t => {
+      topicData[t] = { correct: 0, total: 0, easy: 0, medium: 0, hard: 0 };
+    });
+
+    results.forEach(r => {
+      if (r.topicBreakdown) {
+        Object.entries(r.topicBreakdown).forEach(([t, s]) => {
+          if (topicData[t]) {
+            topicData[t].correct += s.correct || 0;
+            topicData[t].total += s.total || 0;
+          }
+        });
+      }
+    });
+
+    fcSessions.forEach(ses => {
+      if (ses.topicBreakdown) {
+        Object.entries(ses.topicBreakdown).forEach(([t, s]) => {
+          if (topicData[t]) {
+            topicData[t].easy += s.easy || 0;
+            topicData[t].medium += s.medium || 0;
+            topicData[t].hard += s.hard || 0;
+          }
+        });
+      }
+    });
+
+    // --- Topic Mastery ---
+    let masteryHtml = '';
+    Object.entries(topicData).forEach(([topic, data]) => {
+      const pct = data.total > 0 ? Math.round((data.correct / data.total) * 100) : -1;
+      const barCls = pct >= 70 ? '' : pct >= 50 ? 'mid' : 'low';
+      const pctCls = pct >= 70 ? 'good' : pct >= 50 ? 'mid' : 'bad';
+      const fcTotal = data.easy + data.medium + data.hard;
+      const fcStr = fcTotal > 0
+        ? `<span style="color:var(--green)">✓${data.easy}</span> <span style="color:var(--yellow)">~${data.medium}</span> <span style="color:var(--red)">✗${data.hard}</span>`
+        : '<span style="color:var(--muted)">No flashcard data</span>';
+
+      masteryHtml += `
+        <div class="mastery-row">
+          <div class="mastery-label">
+            <span>${TOPIC_ICONS[topic] || ''}</span>
+            <span class="mastery-name">${TOPIC_NAMES[topic]}</span>
+          </div>
+          <div class="mastery-bar-section">
+            <div class="mastery-bar"><div class="mastery-fill ${barCls}" style="width:${Math.max(pct, 0)}%"></div></div>
+            <span class="mastery-pct ${pctCls}">${pct >= 0 ? pct + '%' : '—'}</span>
+          </div>
+          <div class="mastery-fc">${fcStr}</div>
+        </div>
+      `;
+    });
+
+    const masteryEl = document.getElementById('topic-mastery-list');
+    if (masteryEl) {
+      masteryEl.innerHTML = masteryHtml ||
+        '<p style="color:var(--muted);font-size:0.85rem;">Complete a quiz or knowledge test to see topic mastery.</p>';
+    }
+
+    // --- Recent Activity ---
+    const allActivity = [];
+    results.forEach(r => {
+      allActivity.push({
+        date: r.date,
+        type: r.type === 'knowledge' ? 'knowledge' : 'quiz',
+        label: r.type === 'knowledge' ? '🎯 Knowledge Test' : '🧪 Practice Quiz',
+        detail: r.pct + '% score',
+        pct: r.pct
+      });
+    });
+    fcSessions.forEach(ses => {
+      const total = ses.easy + ses.medium + ses.hard;
+      allActivity.push({
+        date: ses.date,
+        type: 'flashcards',
+        label: '🃏 Flashcards — ' + (ses.topic === 'all' ? 'All Topics' : (TOPIC_NAMES[ses.topic] || ses.topic)),
+        detail: `${total} cards · ✓${ses.easy} ~${ses.medium} ✗${ses.hard}`
+      });
+    });
+
+    allActivity.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    let activityHtml = '';
+    if (allActivity.length === 0) {
+      activityHtml = '<p style="color:var(--muted);font-size:0.85rem;">No activity yet. Complete a quiz or flashcard session!</p>';
+    } else {
+      allActivity.slice(0, 10).forEach(item => {
+        const d = new Date(item.date);
+        const dateStr = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) +
+          ' ' + d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+        const pctStyle = item.pct !== undefined
+          ? `color:${item.pct >= 70 ? 'var(--green)' : item.pct >= 50 ? 'var(--yellow)' : 'var(--red)'}`
+          : 'color:var(--muted)';
+        activityHtml += `
+          <div class="activity-item">
+            <div class="activity-info">
+              <span class="activity-label">${item.label}</span>
+              <span class="activity-detail" style="${pctStyle}">${item.detail}</span>
+            </div>
+            <span class="activity-date">${dateStr}</span>
+          </div>
+        `;
+      });
+    }
+
+    const activityEl = document.getElementById('recent-activity-list');
+    if (activityEl) activityEl.innerHTML = activityHtml;
+
+    // --- AI Export ---
+    const exportEl = document.getElementById('ai-export-text');
+    if (exportEl) {
+      exportEl.value = generateAIExport(topicData, results, fcSessions, quizCount, ktCount, avgScore, totalCards);
+    }
+
+  } catch(e) { console.error('renderProgress error:', e); }
+}
+
+function generateAIExport(topicData, results, fcSessions, quizCount, ktCount, avgScore, totalCards) {
+  if (results.length === 0 && fcSessions.length === 0) {
+    return 'No data yet. Complete some quizzes and flashcard sessions first, then come back to export your progress.';
+  }
+
+  const now = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  const line = '='.repeat(52);
+  const dash = '-'.repeat(36);
+
+  let text = `CS11003 Discrete Maths — Revision Progress Report\n`;
+  text += `Generated: ${now}\n`;
+  text += `${line}\n\n`;
+
+  text += `OVERALL STATS\n${dash}\n`;
+  text += `Practice quizzes taken:   ${quizCount}\n`;
+  text += `Knowledge tests taken:    ${ktCount}\n`;
+  text += `Average score:            ${avgScore > 0 ? avgScore + '%' : 'N/A'}\n`;
+  if (results.length > 0) {
+    text += `Best score:               ${Math.max(...results.map(r => r.pct))}%\n`;
+    const last = results[results.length - 1];
+    text += `Most recent score:        ${last.pct}% (${new Date(last.date).toLocaleDateString('en-GB')})\n`;
+  }
+  text += `Flashcard cards reviewed: ${totalCards}\n\n`;
+
+  text += `TOPIC MASTERY (Quiz Performance)\n${dash}\n`;
+  const weakTopics = [], strongTopics = [];
+  Object.entries(topicData).forEach(([topic, data]) => {
+    const pct = data.total > 0 ? Math.round((data.correct / data.total) * 100) : null;
+    const icon = pct === null ? '⬜' : pct >= 70 ? '✅' : pct >= 50 ? '🟡' : '🔴';
+    const status = pct === null ? 'not yet tested' : `${pct}% (${data.correct}/${data.total} correct) [${pct >= 70 ? 'STRONG' : pct >= 50 ? 'OK' : 'WEAK'}]`;
+    text += `${icon} ${TOPIC_NAMES[topic]}: ${status}\n`;
+    if (pct !== null && pct < 60) weakTopics.push({ name: TOPIC_NAMES[topic], pct });
+    if (pct !== null && pct >= 70) strongTopics.push({ name: TOPIC_NAMES[topic], pct });
+  });
+  text += `\n`;
+
+  text += `FLASHCARD PERFORMANCE\n${dash}\n`;
+  let anyFc = false;
+  Object.entries(topicData).forEach(([topic, data]) => {
+    const total = data.easy + data.medium + data.hard;
+    if (total > 0) {
+      anyFc = true;
+      const pct = Math.round((data.easy / total) * 100);
+      text += `${TOPIC_NAMES[topic]}: Got it:${data.easy} Unsure:${data.medium} Again:${data.hard} (${pct}% confident)\n`;
+    }
+  });
+  if (!anyFc) text += `No flashcard sessions recorded yet.\n`;
+  text += `\n`;
+
+  if (weakTopics.length > 0) {
+    text += `WEAK AREAS — FOCUS ON THESE\n${dash}\n`;
+    weakTopics.sort((a, b) => a.pct - b.pct).forEach(t => {
+      text += `🔴 ${t.name}: ${t.pct}% average\n`;
+    });
+    text += `\n`;
+  }
+
+  if (strongTopics.length > 0) {
+    text += `STRONG AREAS (70%+)\n${dash}\n`;
+    strongTopics.forEach(t => { text += `✅ ${t.name}: ${t.pct}%\n`; });
+    text += `\n`;
+  }
+
+  text += `RECENT QUIZ HISTORY (last 5)\n${dash}\n`;
+  const last5 = [...results].reverse().slice(0, 5);
+  if (last5.length === 0) {
+    text += `No quiz history yet.\n`;
+  } else {
+    last5.forEach(r => {
+      const d = new Date(r.date).toLocaleDateString('en-GB');
+      text += `${d}: ${r.type === 'knowledge' ? 'Knowledge Test' : 'Practice Quiz'} — ${r.pct}%\n`;
+    });
+  }
+  text += `\n`;
+
+  text += `${line}\n`;
+  text += `PASTE TO AI — PROMPT BELOW\n`;
+  text += `${line}\n\n`;
+  text += `I am revising for my CS11003 Discrete Mathematics exam (target: 70% to pass). `;
+  text += `The data above shows my current performance across all topics.\n\n`;
+
+  if (weakTopics.length > 0) {
+    const weakNames = weakTopics.map(t => t.name).join(', ');
+    text += `My weak areas are: ${weakNames}.\n\n`;
+    text += `Please help me by:\n`;
+    text += `1. Explaining the key concepts I'm likely misunderstanding in each weak area\n`;
+    text += `2. Giving 2-3 worked examples for each weak area\n`;
+    text += `3. Pointing out common mistakes students make in these topics\n`;
+    text += `4. Suggesting what to focus on most given my exam is very soon\n`;
+  } else if (results.length > 0) {
+    text += `Please review my progress and suggest what to focus on to push my score above 70%.\n`;
+  } else {
+    text += `I haven't done any quizzes yet. Please give me a study plan covering all 9 topics.\n`;
+  }
+
+  return text;
+}
+
+function copyAIExport() {
+  const el = document.getElementById('ai-export-text');
+  if (!el || !el.value) return;
+  const showConfirm = () => {
+    const c = document.getElementById('copy-confirm');
+    if (c) { c.style.display = 'inline'; setTimeout(() => { c.style.display = 'none'; }, 2500); }
+  };
+  navigator.clipboard.writeText(el.value).then(showConfirm).catch(() => {
+    el.select();
+    document.execCommand('copy');
+    showConfirm();
+  });
 }
 
 // ============================================================
